@@ -3,7 +3,7 @@ import {
   PostCommentResponseType,
   PutCommentRequestType,
   PutCommentResponseType,
-} from "@/entities/comment/model/types";
+} from "@/features/comment/model/types";
 
 const API_BASE_URL = "/api/comments";
 

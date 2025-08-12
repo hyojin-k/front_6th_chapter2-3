@@ -3,7 +3,7 @@ import {
   PostPostResponseType,
   PutPostRequestType,
   PutPostResponseType,
-} from "@/entities/post/model/types";
+} from "@/features/post/model/types";
 
 const API_BASE_URL = "/api/posts";
 

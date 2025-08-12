@@ -15,6 +15,7 @@ export interface PostCommentResponseType {
 
 // 댓글 수정
 export interface PutCommentRequestType {
+  id: number;
   body: string;
 }
 export type PutCommentResponseType = CommentType;
