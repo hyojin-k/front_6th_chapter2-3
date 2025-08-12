@@ -94,7 +94,7 @@ const PostsManager = () => {
         usersData = users.users;
         const postsWithUsers = postsData.posts.map((post) => ({
           ...post,
-          author: usersData.users.find((user) => user.id === post.userId),
+          author: usersData.find((user: UserType) => user.id === post.userId),
         }));
 
         setPosts(postsWithUsers);

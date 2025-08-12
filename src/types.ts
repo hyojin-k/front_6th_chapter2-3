@@ -153,7 +153,7 @@ export interface GetUsersRequestType {
   limit: number;
   select?: string;
 }
-export type GetUsersResponseType = UsersType;
+export type GetUsersResponseType = UserType[];
 
 export type GetUserResponseType = UserDetailType;
 
