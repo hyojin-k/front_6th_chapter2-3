@@ -16,7 +16,7 @@ export interface PostType {
     dislikes: number;
     likes: number;
   };
-  author: UserType;
+  author?: UserType;
   tags: string[];
 }
 
@@ -127,6 +127,12 @@ export interface CommentUserType {
 //--------------------------------
 
 // 게시물
+export interface GetPostsRequestType {
+  limit: number;
+  skip: number;
+}
+export type GetPostsResponseType = PostsType;
+
 export interface PostPostRequestType {
   title: string;
   body: string;
@@ -142,7 +148,18 @@ export interface PostPostResponseType {
 export type PutPostRequestType = PostType;
 export type PutPostResponseType = Omit<PostType, "author" | "views">;
 
+// 사용자
+export interface GetUsersRequestType {
+  limit: number;
+  select?: string;
+}
+export type GetUsersResponseType = UsersType;
+
+export type GetUserResponseType = UserDetailType;
+
 // 댓글
+export type GetCommentsResponseType = CommentsType;
+
 export interface PostCommentRequestType {
   body: string;
   postId: number | null;

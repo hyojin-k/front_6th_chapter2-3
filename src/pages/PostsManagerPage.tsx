@@ -25,7 +25,16 @@ import {
   TableRow,
   Textarea,
 } from "../shared/ui";
-import { CommentsType, CommentType, PostCommentRequestType, PostType, TagType, UserDetailType } from "../types";
+import {
+  CommentType,
+  GetPostsResponseType,
+  GetUsersResponseType,
+  PostCommentRequestType,
+  PostType,
+  TagType,
+  UserDetailType,
+  UserType,
+} from "../types";
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -71,8 +80,8 @@ const PostsManager = () => {
   // 게시물 가져오기
   const fetchPosts = () => {
     setLoading(true);
-    let postsData;
-    let usersData;
+    let postsData: GetPostsResponseType;
+    let usersData: GetUsersResponseType;
 
     fetch(`/api/posts?limit=${limit}&skip=${skip}`)
       .then((response) => response.json())
@@ -85,8 +94,9 @@ const PostsManager = () => {
         usersData = users.users;
         const postsWithUsers = postsData.posts.map((post) => ({
           ...post,
-          author: usersData.find((user) => user.id === post.userId),
+          author: usersData.users.find((user) => user.id === post.userId),
         }));
+
         setPosts(postsWithUsers);
         setTotal(postsData.total);
       })
@@ -128,7 +138,7 @@ const PostsManager = () => {
   };
 
   // 태그별 게시물 가져오기
-  const fetchPostsByTag = async (tag) => {
+  const fetchPostsByTag = async (tag: string) => {
     if (!tag || tag === "all") {
       fetchPosts();
       return;
@@ -142,9 +152,9 @@ const PostsManager = () => {
       const postsData = await postsResponse.json();
       const usersData = await usersResponse.json();
 
-      const postsWithUsers = postsData.posts.map((post) => ({
+      const postsWithUsers = postsData.posts.map((post: PostType) => ({
         ...post,
-        author: usersData.users.find((user) => user.id === post.userId),
+        author: usersData.users.find((user: UserType) => user.id === post.userId),
       }));
 
       setPosts(postsWithUsers);
@@ -175,7 +185,7 @@ const PostsManager = () => {
   // 게시물 업데이트
   const updatePost = async () => {
     try {
-      const response = await fetch(`/api/posts/${selectedPost.id}`, {
+      const response = await fetch(`/api/posts/${selectedPost?.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(selectedPost),
@@ -189,7 +199,7 @@ const PostsManager = () => {
   };
 
   // 게시물 삭제
-  const deletePost = async (id) => {
+  const deletePost = async (id: number) => {
     try {
       await fetch(`/api/posts/${id}`, {
         method: "DELETE",
@@ -201,7 +211,7 @@ const PostsManager = () => {
   };
 
   // 댓글 가져오기
-  const fetchComments = async (postId) => {
+  const fetchComments = async (postId: number) => {
     if (comments[postId]) return; // 이미 불러온 댓글이 있으면 다시 불러오지 않음
     try {
       const response = await fetch(`/api/comments/post/${postId}`);
@@ -235,10 +245,10 @@ const PostsManager = () => {
   // 댓글 업데이트
   const updateComment = async () => {
     try {
-      const response = await fetch(`/api/comments/${selectedComment.id}`, {
+      const response = await fetch(`/api/comments/${selectedComment?.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: selectedComment.body }),
+        body: JSON.stringify({ body: selectedComment?.body }),
       });
       const data = await response.json();
       setComments((prev) => ({
@@ -252,7 +262,7 @@ const PostsManager = () => {
   };
 
   // 댓글 삭제
-  const deleteComment = async (id, postId) => {
+  const deleteComment = async (id: number, postId: number) => {
     try {
       await fetch(`/api/comments/${id}`, {
         method: "DELETE",
@@ -267,12 +277,15 @@ const PostsManager = () => {
   };
 
   // 댓글 좋아요
-  const likeComment = async (id, postId) => {
+  const likeComment = async (id: number, postId: number) => {
     try {
+      const comment = comments[postId]?.find((c: CommentType) => c.id === id);
+      if (!comment) return;
+
       const response = await fetch(`/api/comments/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ likes: comments[postId].find((c) => c.id === id).likes + 1 }),
+        body: JSON.stringify({ likes: comment?.likes + 1 }),
       });
       const data = await response.json();
       setComments((prev) => ({
@@ -287,14 +300,14 @@ const PostsManager = () => {
   };
 
   // 게시물 상세 보기
-  const openPostDetail = (post) => {
+  const openPostDetail = (post: PostType) => {
     setSelectedPost(post);
     fetchComments(post.id);
     setShowPostDetailDialog(true);
   };
 
   // 사용자 모달 열기
-  const openUserModal = async (user) => {
+  const openUserModal = async (user: UserType) => {
     try {
       const response = await fetch(`/api/users/${user.id}`);
       const userData = await response.json();
@@ -384,7 +397,10 @@ const PostsManager = () => {
               </div>
             </TableCell>
             <TableCell>
-              <div className="flex items-center space-x-2 cursor-pointer" onClick={() => openUserModal(post.author)}>
+              <div
+                className="flex items-center space-x-2 cursor-pointer"
+                onClick={() => post.author && openUserModal(post.author)}
+              >
                 <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
                 <span>{post.author?.username}</span>
               </div>
