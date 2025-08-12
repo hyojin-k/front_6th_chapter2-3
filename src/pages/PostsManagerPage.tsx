@@ -25,16 +25,9 @@ import {
   TableRow,
   Textarea,
 } from "../shared/ui";
-import {
-  CommentType,
-  GetPostsResponseType,
-  GetUsersResponseType,
-  PostCommentRequestType,
-  PostType,
-  TagType,
-  UserDetailType,
-  UserType,
-} from "../types";
+import { CommentType, PostCommentRequestType } from "@/entities/comment/model/types";
+import { GetPostsResponseType, PostType, TagType } from "@/entities/post/model/types";
+import { GetUsersResponseType, UserDetailType, UserType } from "@/entities/user/model/types";
 
 const PostsManager = () => {
   const navigate = useNavigate();
