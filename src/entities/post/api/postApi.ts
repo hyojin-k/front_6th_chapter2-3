@@ -11,8 +11,8 @@ export const postApi = {
   },
 
   // 게시물 검색 조회
-  getSearchPosts: async (query: string): Promise<GetPostsResponseType> => {
-    const response = await fetch(`${API_BASE_URL}/search?q=${encodeURIComponent(query)}`);
+  getSearchPosts: async (searchQuery: string): Promise<GetPostsResponseType> => {
+    const response = await fetch(`${API_BASE_URL}/search?q=${encodeURIComponent(searchQuery)}`);
     if (!response.ok) throw new Error(`게시물 검색 오류: ${response.statusText}`);
     return response.json();
   },
