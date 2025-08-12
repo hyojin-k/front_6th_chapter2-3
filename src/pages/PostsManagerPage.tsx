@@ -25,6 +25,7 @@ import {
   TableRow,
   Textarea,
 } from "../shared/ui";
+import { CommentsType, CommentType, PostCommentRequestType, PostType, TagType, UserDetailType } from "../types";
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -32,28 +33,28 @@ const PostsManager = () => {
   const queryParams = new URLSearchParams(location.search);
 
   // 상태 관리
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<PostType[]>([]);
   const [total, setTotal] = useState(0);
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"));
   const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"));
   const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "");
-  const [selectedPost, setSelectedPost] = useState(null);
+  const [selectedPost, setSelectedPost] = useState<PostType | null>(null);
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "");
   const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc");
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 });
   const [loading, setLoading] = useState(false);
-  const [tags, setTags] = useState([]);
+  const [tags, setTags] = useState<TagType[]>([]);
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "");
-  const [comments, setComments] = useState({});
-  const [selectedComment, setSelectedComment] = useState(null);
-  const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 });
+  const [comments, setComments] = useState<Record<number, CommentType[]>>({});
+  const [selectedComment, setSelectedComment] = useState<CommentType | null>(null);
+  const [newComment, setNewComment] = useState<PostCommentRequestType>({ body: "", postId: null, userId: 1 });
   const [showAddCommentDialog, setShowAddCommentDialog] = useState(false);
   const [showEditCommentDialog, setShowEditCommentDialog] = useState(false);
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState<UserDetailType | null>(null);
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -423,7 +424,7 @@ const PostsManager = () => {
   );
 
   // 댓글 렌더링
-  const renderComments = (postId) => (
+  const renderComments = (postId: number) => (
     <div className="mt-2">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-semibold">댓글</h3>
@@ -439,7 +440,7 @@ const PostsManager = () => {
         </Button>
       </div>
       <div className="space-y-1">
-        {comments[postId]?.map((comment) => (
+        {comments[postId]?.map((comment: CommentType) => (
           <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
             <div className="flex items-center space-x-2 overflow-hidden">
               <span className="font-medium truncate">{comment.user.username}:</span>
@@ -609,13 +610,13 @@ const PostsManager = () => {
             <Input
               placeholder="제목"
               value={selectedPost?.title || ""}
-              onChange={(e) => setSelectedPost({ ...selectedPost, title: e.target.value })}
+              onChange={(e) => setSelectedPost(selectedPost ? { ...selectedPost, title: e.target.value } : null)}
             />
             <Textarea
               rows={15}
               placeholder="내용"
               value={selectedPost?.body || ""}
-              onChange={(e) => setSelectedPost({ ...selectedPost, body: e.target.value })}
+              onChange={(e) => setSelectedPost(selectedPost ? { ...selectedPost, body: e.target.value } : null)}
             />
             <Button onClick={updatePost}>게시물 업데이트</Button>
           </div>
@@ -649,7 +650,9 @@ const PostsManager = () => {
             <Textarea
               placeholder="댓글 내용"
               value={selectedComment?.body || ""}
-              onChange={(e) => setSelectedComment({ ...selectedComment, body: e.target.value })}
+              onChange={(e) =>
+                setSelectedComment(selectedComment ? { ...selectedComment, body: e.target.value } : null)
+              }
             />
             <Button onClick={updateComment}>댓글 업데이트</Button>
           </div>
@@ -660,11 +663,11 @@ const PostsManager = () => {
       <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>{highlightText(selectedPost?.title, searchQuery)}</DialogTitle>
+            <DialogTitle>{highlightText(selectedPost?.title || "", searchQuery)}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p>{highlightText(selectedPost?.body, searchQuery)}</p>
-            {renderComments(selectedPost?.id)}
+            <p>{highlightText(selectedPost?.body || "", searchQuery)}</p>
+            {renderComments(selectedPost?.id || 0)}
           </div>
         </DialogContent>
       </Dialog>
