@@ -8,10 +8,9 @@ import { GetPostsResponseType, PostType, TagType } from "@/entities/post/model/t
 import { GetUsersResponseType, UserDetailType, UserType } from "@/entities/user/model/types";
 import { SearchBar } from "@/widgets/SearchBar";
 import { Pagination } from "@/shared/ui/Pagination";
-import { PostAddDialog, PostEditDialog, PostDetailDialog } from "@/features/post/ui";
+import { PostAddDialog, PostEditDialog, PostDetailDialog, PostTable } from "@/features/post/ui";
 import { CommentAddDialog, CommentEditDialog } from "@/features/comment/ui";
 import { UserDetailDialog } from "@/entities/user/ui";
-import { PostTable } from "@/entities/post/ui";
 
 const PostsManager = () => {
   const navigate = useNavigate();
