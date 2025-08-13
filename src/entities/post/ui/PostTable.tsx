@@ -2,13 +2,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Button }
 import { PostType } from "@/entities/post/model/types";
 import { UserType } from "@/entities/user/model/types";
 import { ThumbsUp, ThumbsDown, MessageSquare, Edit2, Trash2 } from "lucide-react";
+import { highlightText } from "@/shared/lib";
 
 interface PostTableProps {
   posts: PostType[];
   selectedTag: string;
   setSelectedTag: (tag: string) => void;
   updateURL: () => void;
-  highlightText: (text: string, query: string) => React.ReactNode;
   openUserModal: (user: UserType) => void;
   openPostDetail: (post: PostType) => void;
   setSelectedPost: (post: PostType) => void;
@@ -21,7 +21,6 @@ export const PostTable = ({
   selectedTag,
   setSelectedTag,
   updateURL,
-  highlightText,
   openUserModal,
   openPostDetail,
   setSelectedPost,

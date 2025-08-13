@@ -318,21 +318,6 @@ const PostsManager = () => {
     setSelectedTag(params.get("tag") || "");
   }, [location.search]);
 
-  // 하이라이트 함수 추가
-  const highlightText = (text: string, highlight: string) => {
-    if (!text) return null;
-    if (!highlight.trim()) {
-      return <span>{text}</span>;
-    }
-    const regex = new RegExp(`(${highlight})`, "gi");
-    const parts = text.split(regex);
-    return (
-      <span>
-        {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-      </span>
-    );
-  };
-
   return (
     <Card className="w-full max-w-6xl mx-auto">
       <CardHeader>
@@ -371,7 +356,6 @@ const PostsManager = () => {
               selectedTag={selectedTag}
               setSelectedTag={setSelectedTag}
               updateURL={updateURL}
-              highlightText={highlightText}
               openUserModal={openUserModal}
               openPostDetail={openPostDetail}
               setSelectedPost={setSelectedPost}
@@ -428,7 +412,6 @@ const PostsManager = () => {
         setShowPostDetailDialog={setShowPostDetailDialog}
         selectedPost={selectedPost}
         searchQuery={searchQuery}
-        highlightText={highlightText}
         comments={comments[selectedPost?.id || 0] || []}
         setNewComment={setNewComment}
         setShowAddCommentDialog={setShowAddCommentDialog}

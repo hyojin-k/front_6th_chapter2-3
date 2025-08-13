@@ -3,13 +3,13 @@ import { PostType } from "@/entities/post/model/types";
 import { Comment } from "@/entities/comment/ui";
 import { CommentType } from "@/entities/comment/model/types";
 import { PostCommentRequestType } from "@/features/comment/model/types";
+import { highlightText } from "@/shared/lib";
 
 interface PostDetailDialogProps {
   showPostDetailDialog: boolean;
   setShowPostDetailDialog: (showPostDetailDialog: boolean) => void;
   selectedPost: Partial<PostType> | null;
   searchQuery: string;
-  highlightText: (text: string, query: string) => React.ReactNode;
   comments: CommentType[];
   setNewComment: (comment: Partial<PostCommentRequestType>) => void;
   setShowAddCommentDialog: (show: boolean) => void;
@@ -24,7 +24,6 @@ export const PostDetailDialog = ({
   setShowPostDetailDialog,
   selectedPost,
   searchQuery,
-  highlightText,
   comments,
   setNewComment,
   setShowAddCommentDialog,
