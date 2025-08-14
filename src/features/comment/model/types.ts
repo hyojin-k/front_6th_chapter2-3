@@ -19,3 +19,16 @@ export interface PutCommentRequestType {
   body: string;
 }
 export type PutCommentResponseType = CommentType;
+
+// 댓글 삭제
+export interface DeleteCommentRequestType {
+  id: number;
+  postId: number;
+}
+
+// 댓글 좋아요
+export interface LikeCommentRequestType {
+  id: number;
+  currentLikes: number;
+  postId: number;
+}

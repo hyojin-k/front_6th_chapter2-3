@@ -1,7 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { commentApi } from "./commentApi";
 import { commentQueryKeys } from "@/entities/comment/api/queryKeys";
-import { PostCommentRequestType } from "../model/types";
+import {
+  DeleteCommentRequestType,
+  LikeCommentRequestType,
+  PostCommentRequestType,
+  PutCommentRequestType,
+} from "../model/types";
 import {
   CommentType,
   GetCommentsResponseType,
@@ -16,6 +21,11 @@ export const useCreateCommentMutation = () => {
       return commentApi.createComment(req);
     },
     onSuccess: (res) => {
+      const commentWithLikes = {
+        ...res,
+        likes: 0,
+      };
+
       queryClient.setQueryData(
         commentQueryKeys.list(res.postId),
         (old: GetCommentsResponseType) => {
@@ -23,18 +33,18 @@ export const useCreateCommentMutation = () => {
 
           const newData = {
             ...old,
-            comments: [res, ...old.comments],
+            comments: [commentWithLikes, ...old.comments],
             total: old.total + 1,
           };
           return newData;
         },
       );
     },
-    onError: (error, variables) => {
+    onError: (error, req) => {
       console.error("댓글 추가 실패:", error);
-      if (variables.postId) {
+      if (req.postId) {
         queryClient.invalidateQueries({
-          queryKey: commentQueryKeys.list(variables.postId),
+          queryKey: commentQueryKeys.list(req.postId),
         });
       }
     },
@@ -46,8 +56,8 @@ export const useUpdateCommentMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, body }: { id: number; body: string }) => {
-      return commentApi.updateComment(id, { body });
+    mutationFn: (req: PutCommentRequestType) => {
+      return commentApi.updateComment(req.id, { body: req.body });
     },
     onSuccess: (updatedComment) => {
       queryClient.setQueryData(
@@ -75,18 +85,18 @@ export const useDeleteCommentMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, postId }: { id: number; postId: number }) => {
-      return commentApi.deleteComment(id);
+    mutationFn: (req: DeleteCommentRequestType) => {
+      return commentApi.deleteComment(req.id);
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (_, req) => {
       queryClient.setQueryData(
-        commentQueryKeys.list(variables.postId),
+        commentQueryKeys.list(req.postId),
         (old: GetCommentsResponseType) => {
           if (!old) return old;
           const newData = {
             ...old,
             comments: old.comments.filter(
-              (comment: CommentType) => comment.id !== variables.id,
+              (comment: CommentType) => comment.id !== req.id,
             ),
             total: old.total - 1,
           };
@@ -94,10 +104,10 @@ export const useDeleteCommentMutation = () => {
         },
       );
     },
-    onError: (error, variables) => {
+    onError: (error, req) => {
       console.error("댓글 삭제 실패:", error);
       queryClient.invalidateQueries({
-        queryKey: commentQueryKeys.list(variables.postId),
+        queryKey: commentQueryKeys.list(req.postId),
       });
     },
   });
@@ -108,34 +118,28 @@ export const useLikeCommentMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      id,
-      currentLikes,
-      postId,
-    }: {
-      id: number;
-      currentLikes: number;
-      postId: number;
-    }) => {
-      const newLikes = currentLikes + 1;
+    mutationFn: async (req: LikeCommentRequestType) => {
+      const newLikes = req.currentLikes + 1;
 
       try {
-        await commentApi.likeComment(id, currentLikes);
+        await commentApi.likeComment(req.id, req.currentLikes);
       } catch (error) {
         console.warn("서버 좋아요 요청 실패, 클라이언트에서만 처리:", error);
       }
 
-      return { id, postId, likes: newLikes };
+      return { id: req.id, postId: req.postId, likes: newLikes };
     },
-    onSuccess: ({ id, postId, likes }) => {
+    onSuccess: (res, req) => {
       queryClient.setQueryData(
-        commentQueryKeys.list(postId),
+        commentQueryKeys.list(req.postId),
         (old: GetCommentsResponseType) => {
           if (!old) return old;
           const newData = {
             ...old,
             comments: old.comments.map((comment: CommentType) =>
-              comment.id === id ? { ...comment, likes } : comment,
+              comment.id === req.id
+                ? { ...comment, likes: res.likes }
+                : comment,
             ),
           };
           return newData;

@@ -87,42 +87,47 @@ export const Comments = ({ postId, searchQuery }: CommentsProps) => {
         </Button>
       </div>
       <div className="space-y-1">
-        {comments.map((comment: CommentType) => (
-          <div
-            key={comment.id}
-            className="flex items-center justify-between text-sm border-b pb-1"
-          >
-            <Comment
-              comment={comment}
-              highlightText={highlightText}
-              searchQuery={searchQuery}
-            />
-            <div className="flex items-center space-x-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleLikeComment(comment.id, comment.likes)}
+        {comments.map(
+          (comment: CommentType) => (
+            console.log(comment),
+            (
+              <div
+                key={comment.id}
+                className="flex items-center justify-between text-sm border-b pb-1"
               >
-                <ThumbsUp className="w-3 h-3" />
-                <span className="ml-1 text-xs">{comment.likes}</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleEditComment(comment)}
-              >
-                <Edit2 className="w-3 h-3" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleDeleteComment(comment.id)}
-              >
-                <Trash2 className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        ))}
+                <Comment
+                  comment={comment}
+                  highlightText={highlightText}
+                  searchQuery={searchQuery}
+                />
+                <div className="flex items-center space-x-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleLikeComment(comment.id, comment.likes)}
+                  >
+                    <ThumbsUp className="w-3 h-3" />
+                    <span className="ml-1 text-xs">{comment.likes}</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEditComment(comment)}
+                  >
+                    <Edit2 className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteComment(comment.id)}
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+            )
+          ),
+        )}
       </div>
 
       {/* 댓글 추가 */}
