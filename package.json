@@ -22,6 +22,7 @@
     "@feature-sliced/eslint-config": "^0.1.1",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-select": "^2.2.5",
+    "@tanstack/react-query-devtools": "^5.85.3",
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
