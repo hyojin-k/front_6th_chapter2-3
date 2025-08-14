@@ -76,6 +76,7 @@ export const SearchBar = () => {
         onValueChange={(value) => {
           setSortOrder(value as "asc" | "desc");
         }}
+        disabled={!sortBy || sortBy === "none"}
       >
         <SelectTrigger className="w-[180px]">
           <SelectValue placeholder="정렬 순서" />
