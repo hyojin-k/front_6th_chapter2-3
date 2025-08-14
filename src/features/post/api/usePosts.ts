@@ -32,9 +32,6 @@ export const usePosts = () => {
     setPagination,
     setDialog,
     setNewPost,
-    addPost: addPostToStore,
-    updatePost: updatePostInStore,
-    deletePost: deletePostFromStore,
     resetNewPost,
   } = usePostStore();
 
@@ -109,8 +106,7 @@ export const usePosts = () => {
         body: newPost.body || "",
         userId: newPost.userId || 1,
       };
-      const addedPost = await createPostMutation.mutateAsync(postData);
-      addPostToStore(addedPost);
+      await createPostMutation.mutateAsync(postData);
       setDialog("showAddDialog", false);
       resetNewPost();
     } catch (error) {
@@ -133,8 +129,7 @@ export const usePosts = () => {
         reactions: selectedPost.reactions || { likes: 0, dislikes: 0 },
         tags: selectedPost.tags || [],
       };
-      const updatedPost = await updatePostMutation.mutateAsync(postData);
-      updatePostInStore(updatedPost);
+      await updatePostMutation.mutateAsync(postData);
       setDialog("showEditDialog", false);
     } catch (error) {
       console.error("게시물 수정 오류:", error);
@@ -142,12 +137,13 @@ export const usePosts = () => {
   };
 
   // 게시물 삭제
-  const handleDeletePost = async (id: number) => {
+  const handleDeletePost = async (id: number, onComplete?: () => void) => {
     try {
       await deletePostMutation.mutateAsync(id);
-      deletePostFromStore(id);
+      onComplete?.();
     } catch (error) {
       console.error("게시물 삭제 오류:", error);
+      onComplete?.();
     }
   };
 

@@ -29,7 +29,7 @@ interface PostTableProps {
   updateURL: () => void;
   setSelectedPost: (post: PostType) => void;
   setShowEditDialog: (show: boolean) => void;
-  deletePost: (id: number) => void;
+  deletePost: (id: number, onComplete?: () => void) => void;
   searchQuery: string;
 }
 
@@ -148,7 +148,9 @@ export const PostTable = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => deletePost(post.id)}
+                  onClick={() => {
+                    deletePost(post.id);
+                  }}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>

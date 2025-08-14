@@ -178,10 +178,105 @@ export const useCreatePostMutation = () => {
 
   return useMutation({
     mutationFn: (req: PostPostRequestType) => postApi.addPost(req),
-    onSuccess: () => {
-      console.log("게시물 추가 성공 - 캐시 무효화 시작");
-      // 모든 쿼리 무효화
-      queryClient.invalidateQueries();
+    onMutate: async (newPost) => {
+      await queryClient.cancelQueries({ queryKey: postQueryKeys.all });
+
+      const previousData = queryClient.getQueriesData({
+        queryKey: postQueryKeys.all,
+      });
+
+      const optimisticId = `optimistic_${Date.now()}`;
+
+      queryClient.setQueriesData(
+        { queryKey: postQueryKeys.all },
+        (oldData: { posts: PostType[]; total: number } | undefined) => {
+          if (!oldData || !Array.isArray(oldData.posts)) {
+            return oldData;
+          }
+
+          // 임시 ID로 새 게시물 생성 (서버에서 실제 ID를 받으면 교체됨)
+          const optimisticPost: PostType = {
+            id: optimisticId as unknown as number,
+            title: newPost.title,
+            body: newPost.body,
+            userId: newPost.userId,
+            views: 0,
+            reactions: { likes: 0, dislikes: 0 },
+            tags: [],
+            author: undefined, // 나중에 서버에서 받은 데이터로 교체
+          };
+
+          return {
+            ...oldData,
+            posts: [optimisticPost, ...oldData.posts],
+            total: oldData.total + 1,
+          };
+        },
+      );
+
+      return { previousData, optimisticId };
+    },
+    onError: (err, newPost, context) => {
+      if (context?.previousData) {
+        context.previousData.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+      console.error("게시물 추가 실패:", err);
+    },
+    onSuccess: async (addedPost, variables, context) => {
+      if (!context?.optimisticId) {
+        queryClient.invalidateQueries({ queryKey: postQueryKeys.all });
+        return;
+      }
+
+      try {
+        const usersData = await userApi.getUsers();
+        const author = usersData.users.find(
+          (user) => user.id === addedPost.userId,
+        );
+
+        const completePost: PostType = {
+          ...addedPost,
+          views: 0,
+          reactions: { likes: 0, dislikes: 0 },
+          tags: [],
+          author,
+        };
+
+        queryClient.setQueriesData(
+          { queryKey: postQueryKeys.all },
+          (oldData: { posts: PostType[]; total: number } | undefined) => {
+            if (!oldData || !Array.isArray(oldData.posts)) {
+              return oldData;
+            }
+
+            return {
+              ...oldData,
+              posts: oldData.posts.map((post: PostType) =>
+                String(post.id) === context.optimisticId ? completePost : post,
+              ),
+            };
+          },
+        );
+      } catch (error) {
+        console.error("사용자 정보 가져오기 실패:", error);
+        queryClient.setQueriesData(
+          { queryKey: postQueryKeys.all },
+          (oldData: { posts: PostType[]; total: number } | undefined) => {
+            if (!oldData || !Array.isArray(oldData.posts)) {
+              return oldData;
+            }
+
+            return {
+              ...oldData,
+              posts: oldData.posts.map((post: PostType) =>
+                String(post.id) === context.optimisticId ? addedPost : post,
+              ),
+            };
+          },
+        );
+      }
     },
   });
 };
@@ -234,10 +329,43 @@ export const useDeletePostMutation = () => {
 
   return useMutation({
     mutationFn: (id: number) => postApi.deletePost(id),
-    onSuccess: () => {
-      console.log("게시물 삭제 성공 - 캐시 무효화 시작");
-      // 모든 쿼리 무효화
-      queryClient.invalidateQueries();
+    onMutate: async (deletedId) => {
+      await queryClient.cancelQueries({ queryKey: postQueryKeys.all });
+
+      const previousData = queryClient.getQueriesData({
+        queryKey: postQueryKeys.all,
+      });
+
+      // 낙관적 업데이트 - 즉시 UI에서 게시물 제거
+      queryClient.setQueriesData(
+        { queryKey: postQueryKeys.all },
+        (oldData: { posts: PostType[]; total: number } | undefined) => {
+          if (!oldData || !Array.isArray(oldData.posts)) {
+            return oldData;
+          }
+
+          return {
+            ...oldData,
+            posts: oldData.posts.filter(
+              (post: PostType) => post.id !== deletedId,
+            ),
+            total: oldData.total - 1,
+          };
+        },
+      );
+
+      return { previousData, deletedId };
+    },
+    onError: (err, deletedId, context) => {
+      if (context?.previousData) {
+        context.previousData.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
+      console.error("게시물 삭제 실패:", err);
+    },
+    onSuccess: (_, deletedId) => {
+      console.log("게시물 삭제 성공:", deletedId);
     },
   });
 };
