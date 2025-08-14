@@ -16,5 +16,6 @@ export const useGetUserQuery = (user: UserType) => {
   return useQuery({
     queryKey: userQueryKeys.detail(user.id),
     queryFn: () => userApi.getUser(user),
+    enabled: !!user.id,
   });
 };

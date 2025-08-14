@@ -1,7 +1,7 @@
 interface RequestOptions {
   method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   headers?: Record<string, string>;
-  body?: any;
+  body?: unknown;
 }
 
 async function request<T>(
@@ -39,15 +39,15 @@ export function createApi(baseUrl: string) {
       return request<T>(baseUrl, endpoint, { method: "GET" });
     },
 
-    async post<T>(endpoint: string, data: any): Promise<T> {
+    async post<T>(endpoint: string, data: unknown): Promise<T> {
       return request<T>(baseUrl, endpoint, { method: "POST", body: data });
     },
 
-    async put<T>(endpoint: string, data: any): Promise<T> {
+    async put<T>(endpoint: string, data: unknown): Promise<T> {
       return request<T>(baseUrl, endpoint, { method: "PUT", body: data });
     },
 
-    async patch<T>(endpoint: string, data: any): Promise<T> {
+    async patch<T>(endpoint: string, data: unknown): Promise<T> {
       return request<T>(baseUrl, endpoint, { method: "PATCH", body: data });
     },
 

@@ -17,13 +17,14 @@ import {
   Trash2,
 } from "lucide-react";
 import { highlightText } from "@/shared/lib";
+import { useState } from "react";
+import { UserDetailDialog } from "@/entities/user/ui/UserDetailDialog";
 
 interface PostTableProps {
   posts: PostType[];
   selectedTag: string;
   setSelectedTag: (tag: string) => void;
   updateURL: () => void;
-  openUserModal: (user: UserType) => void;
   openPostDetail: (post: PostType) => void;
   setSelectedPost: (post: PostType) => void;
   setShowEditDialog: (show: boolean) => void;
@@ -35,13 +36,17 @@ export const PostTable = ({
   selectedTag,
   setSelectedTag,
   updateURL,
-  openUserModal,
   openPostDetail,
   setSelectedPost,
   setShowEditDialog,
   deletePost,
   searchQuery,
 }: PostTableProps) => {
+  const [selectedUser, setSelectedUser] = useState<UserType | undefined>(
+    undefined,
+  );
+  const [showUserModal, setShowUserModal] = useState(false);
+
   return (
     <Table>
       <TableHeader>
@@ -84,7 +89,12 @@ export const PostTable = ({
             <TableCell>
               <div
                 className="flex items-center space-x-2 cursor-pointer"
-                onClick={() => post.author && openUserModal(post.author)}
+                onClick={() => {
+                  if (post.author) {
+                    setShowUserModal(true);
+                    setSelectedUser(post.author);
+                  }
+                }}
               >
                 <img
                   src={post.author?.image}
@@ -133,6 +143,14 @@ export const PostTable = ({
           </TableRow>
         ))}
       </TableBody>
+
+      {selectedUser && (
+        <UserDetailDialog
+          open={showUserModal}
+          onClose={() => setShowUserModal(false)}
+          selectedUser={selectedUser}
+        />
+      )}
     </Table>
   );
 };

@@ -8,11 +8,7 @@ import {
   PostType,
   TagType,
 } from "@/entities/post/model/types";
-import {
-  GetUsersResponseType,
-  UserDetailType,
-  UserType,
-} from "@/entities/user/model/types";
+import { GetUsersResponseType, UserType } from "@/entities/user/model/types";
 import { SearchBar } from "@/widgets/SearchBar";
 import { Pagination } from "@/shared/ui/Pagination";
 import {
@@ -21,7 +17,6 @@ import {
   PostDetailDialog,
   PostTable,
 } from "@/features/post/ui";
-import { UserDetailDialog } from "@/entities/user/ui";
 
 const PostsManager = () => {
   const navigate = useNavigate();
@@ -56,9 +51,6 @@ const PostsManager = () => {
   const [tags, setTags] = useState<TagType[]>([]);
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "");
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
-  const [showUserModal, setShowUserModal] = useState(false);
-  const [selectedUser, setSelectedUser] =
-    useState<Partial<UserDetailType> | null>(null);
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -213,18 +205,6 @@ const PostsManager = () => {
     setShowPostDetailDialog(true);
   };
 
-  // 사용자 모달 열기
-  const openUserModal = async (user: UserType) => {
-    try {
-      const response = await fetch(`/api/users/${user.id}`);
-      const userData = await response.json();
-      setSelectedUser(userData);
-      setShowUserModal(true);
-    } catch (error) {
-      console.error("사용자 정보 가져오기 오류:", error);
-    }
-  };
-
   useEffect(() => {
     fetchTags();
   }, []);
@@ -286,7 +266,6 @@ const PostsManager = () => {
               selectedTag={selectedTag}
               setSelectedTag={setSelectedTag}
               updateURL={updateURL}
-              openUserModal={openUserModal}
               openPostDetail={openPostDetail}
               setSelectedPost={setSelectedPost}
               setShowEditDialog={setShowEditDialog}
@@ -330,13 +309,6 @@ const PostsManager = () => {
         setShowPostDetailDialog={setShowPostDetailDialog}
         selectedPost={selectedPost}
         searchQuery={searchQuery}
-      />
-
-      {/* 사용자 모달 */}
-      <UserDetailDialog
-        showUserModal={showUserModal}
-        setShowUserModal={setShowUserModal}
-        selectedUser={selectedUser}
       />
     </Card>
   );
