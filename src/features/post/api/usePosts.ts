@@ -1,9 +1,8 @@
 import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { usePostStore } from "@/entities/post/model/store";
 import { PostType } from "@/entities/post/model/types";
 import {
-  useGetPostsQuery,
   useGetSearchPostsQuery,
   useGetPostsByTagQuery,
   useGetTagsQuery,
@@ -15,6 +14,7 @@ import { URLManager } from "@/shared/lib/urlManager";
 
 export const usePosts = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const {
     selectedPost,
     selectedTag,
@@ -52,27 +52,73 @@ export const usePosts = () => {
     setSelectedTag,
   ]);
 
-  // TanStack Query 훅들
-  const { data: tagsData } = useGetTagsQuery();
-  const { data: postsData, isLoading: postsLoading } = useGetPostsQuery({
-    limit: pagination.limit,
-    skip: pagination.skip,
+  // 상태 변경 시 URL 업데이트 (URL 변경으로 인한 것이 아닌 경우에만)
+  useEffect(() => {
+    const params = URLManager.parseURLParams(location.search);
+    const currentSkip = params.skip || 0;
+    const currentLimit = params.limit || 10;
+    const currentSearch = params.search || "";
+    const currentSortBy = params.sortBy || "";
+    const currentSortOrder = params.sortOrder || "asc";
+    const currentTag = params.tag || "";
+
+    // URL의 값과 현재 상태가 다를 때만 URL 업데이트
+    if (
+      currentSkip !== pagination.skip ||
+      currentLimit !== pagination.limit ||
+      currentSearch !== searchQuery ||
+      currentSortBy !== sortBy ||
+      currentSortOrder !== sortOrder ||
+      currentTag !== selectedTag
+    ) {
+      URLManager.updateURL(navigate, {
+        skip: pagination.skip,
+        limit: pagination.limit,
+        search: searchQuery,
+        sortBy,
+        sortOrder,
+        tag: selectedTag,
+      });
+    }
+  }, [
+    pagination.skip,
+    pagination.limit,
+    searchQuery,
     sortBy,
     sortOrder,
-  });
+    selectedTag,
+    navigate,
+    location.search,
+  ]);
 
+  // 검색어 변경 시 페이지네이션 리셋
+  useEffect(() => {
+    if (searchQuery) {
+      setPagination(0, pagination.limit);
+    }
+  }, [searchQuery, setPagination, pagination.limit]);
+
+  // 정렬 기준 변경 시 페이지네이션 리셋
+  useEffect(() => {
+    setPagination(0, pagination.limit);
+  }, [sortBy, sortOrder, setPagination, pagination.limit]);
+
+  // TanStack Query 훅들
+  const { data: tagsData } = useGetTagsQuery();
   const { data: searchData, isLoading: searchLoading } = useGetSearchPostsQuery(
     searchQuery,
     sortBy,
     sortOrder,
-    { enabled: !!searchQuery },
+    { limit: pagination.limit, skip: pagination.skip },
+    { enabled: true },
   );
 
   const { data: tagData, isLoading: tagLoading } = useGetPostsByTagQuery(
-    selectedTag,
+    selectedTag || "all",
     sortBy,
     sortOrder,
-    { enabled: !!selectedTag && selectedTag !== "all" },
+    { limit: pagination.limit, skip: pagination.skip },
+    { enabled: true },
   );
 
   // Mutation 훅들
@@ -81,21 +127,14 @@ export const usePosts = () => {
   const deletePostMutation = useDeletePostMutation();
 
   // 현재 표시할 데이터 결정
-  const currentData = searchQuery
-    ? searchData
-    : selectedTag && selectedTag !== "all"
-      ? tagData
-      : postsData;
+  const currentData = searchQuery ? searchData : tagData;
 
-  const currentLoading = searchQuery
-    ? searchLoading
-    : selectedTag && selectedTag !== "all"
-      ? tagLoading
-      : postsLoading;
+  const currentLoading = searchQuery ? searchLoading : tagLoading;
 
   // 게시물 검색
   const handleSearch = () => {
-    // TanStack Query가 자동으로 처리하므로 별도 로직 불필요
+    // 검색 시 페이지네이션 리셋
+    setPagination(0, pagination.limit);
   };
 
   // 게시물 추가

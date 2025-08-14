@@ -67,8 +67,6 @@ const PostsManager = () => {
             searchPosts={handleSearch}
             selectedTag={selectedTag}
             setSelectedTag={setSelectedTag}
-            fetchPostsByTag={() => {}} // 이제 usePosts 훅에서 처리
-            updateURL={updateURL}
             tags={tags}
             sortBy={sortBy}
             setSortBy={setSortBy}

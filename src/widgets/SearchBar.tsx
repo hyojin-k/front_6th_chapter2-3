@@ -15,8 +15,6 @@ interface SearchBarProps {
   searchPosts: () => void;
   selectedTag: string;
   setSelectedTag: (tag: string) => void;
-  fetchPostsByTag: (tag: string) => void;
-  updateURL: () => void;
   tags: TagType[];
   sortBy: string;
   setSortBy: (sortBy: string) => void;
@@ -30,8 +28,6 @@ export const SearchBar = ({
   searchPosts,
   selectedTag,
   setSelectedTag,
-  fetchPostsByTag,
-  updateURL,
   tags,
   sortBy,
   setSortBy,
@@ -56,8 +52,6 @@ export const SearchBar = ({
         value={selectedTag}
         onValueChange={(value) => {
           setSelectedTag(value);
-          fetchPostsByTag(value);
-          updateURL();
         }}
       >
         <SelectTrigger className="w-[180px]">
@@ -76,7 +70,6 @@ export const SearchBar = ({
         value={sortBy}
         onValueChange={(value) => {
           setSortBy(value);
-          updateURL();
         }}
       >
         <SelectTrigger className="w-[180px]">
@@ -93,7 +86,6 @@ export const SearchBar = ({
         value={sortOrder}
         onValueChange={(value) => {
           setSortOrder(value as "asc" | "desc");
-          updateURL();
         }}
       >
         <SelectTrigger className="w-[180px]">

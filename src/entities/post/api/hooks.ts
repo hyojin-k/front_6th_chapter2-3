@@ -65,7 +65,7 @@ export const useGetPostsQuery = (
   const { sortBy = "", sortOrder = "asc", ...postParams } = params;
 
   return useQuery({
-    queryKey: postQueryKeys.list(postParams),
+    queryKey: postQueryKeys.list({ ...postParams, sortBy, sortOrder }),
     queryFn: async () => {
       const [postsData, usersData] = await Promise.all([
         postApi.getPosts(postParams.limit, postParams.skip),
@@ -91,10 +91,15 @@ export const useGetSearchPostsQuery = (
   searchQuery: string,
   sortBy: string,
   sortOrder: "asc" | "desc",
+  params?: { limit?: number; skip?: number },
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: postQueryKeys.search(searchQuery),
+    queryKey: postQueryKeys.search(searchQuery, {
+      ...params,
+      sortBy,
+      sortOrder,
+    }),
     queryFn: async () => {
       const [postsData, usersData] = await Promise.all([
         postApi.searchPosts(searchQuery),
@@ -107,9 +112,14 @@ export const useGetSearchPostsQuery = (
       );
       const sortedPosts = sortPosts(postsWithUsers, sortBy, sortOrder);
 
+      // 페이지네이션 적용
+      const startIndex = params?.skip || 0;
+      const endIndex = startIndex + (params?.limit || 10);
+      const paginatedPosts = sortedPosts.slice(startIndex, endIndex);
+
       return {
-        posts: sortedPosts,
-        total: postsData.total,
+        posts: paginatedPosts,
+        total: sortedPosts.length, // 검색 결과의 실제 개수 사용
       };
     },
     enabled: options?.enabled ?? !!searchQuery,
@@ -121,14 +131,15 @@ export const useGetPostsByTagQuery = (
   tag: string,
   sortBy: string,
   sortOrder: "asc" | "desc",
+  params?: { limit?: number; skip?: number },
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: postQueryKeys.byTag(tag),
+    queryKey: postQueryKeys.byTag(tag, { ...params, sortBy, sortOrder }),
     queryFn: async () => {
       if (!tag || tag === "all") {
         const [postsData, usersData] = await Promise.all([
-          postApi.getPosts(10, 0),
+          postApi.getPosts(params?.limit || 10, params?.skip || 0),
           userApi.getUsers(),
         ]);
 
@@ -155,9 +166,14 @@ export const useGetPostsByTagQuery = (
       );
       const sortedPosts = sortPosts(postsWithUsers, sortBy, sortOrder);
 
+      // 페이지네이션 적용
+      const startIndex = params?.skip || 0;
+      const endIndex = startIndex + (params?.limit || 10);
+      const paginatedPosts = sortedPosts.slice(startIndex, endIndex);
+
       return {
-        posts: sortedPosts,
-        total: postsData.total,
+        posts: paginatedPosts,
+        total: sortedPosts.length, // 필터링된 결과의 실제 개수 사용
       };
     },
     enabled: options?.enabled ?? true,
