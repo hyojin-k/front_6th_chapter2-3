@@ -4,43 +4,28 @@ import {
   PutPostRequestType,
   PutPostResponseType,
 } from "@/features/post/model/types";
+import { createApi } from "@/shared/api/baseApi";
 
-const API_BASE_URL = "/api/posts";
+const api = createApi("/api/posts");
 
 export const postApi = {
   // 게시물 추가
-  createPost: async (
+  async createPost(
     postData: PostPostRequestType,
-  ): Promise<PostPostResponseType> => {
-    const response = await fetch(`${API_BASE_URL}/add`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(postData),
-    });
-    if (!response.ok)
-      throw new Error(`게시물 추가 오류: ${response.statusText}`);
-    return response.json();
+  ): Promise<PostPostResponseType> {
+    return api.post<PostPostResponseType>("/add", postData);
   },
 
   // 게시물 수정
-  updatePost: async (
+  async updatePost(
     id: number,
     postData: PutPostRequestType,
-  ): Promise<PutPostResponseType> => {
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(postData),
-    });
-    if (!response.ok)
-      throw new Error(`게시물 수정 오류: ${response.statusText}`);
-    return response.json();
+  ): Promise<PutPostResponseType> {
+    return api.put<PutPostResponseType>(`/${id}`, postData);
   },
 
   // 게시물 삭제
-  deletePost: async (id: number): Promise<void> => {
-    const response = await fetch(`${API_BASE_URL}/${id}`, { method: "DELETE" });
-    if (!response.ok)
-      throw new Error(`게시물 삭제 오류: ${response.statusText}`);
+  async deletePost(id: number): Promise<void> {
+    return api.delete(`/${id}`);
   },
 };

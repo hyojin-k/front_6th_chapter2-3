@@ -4,55 +4,33 @@ import {
   PostCommentResponseType,
 } from "../model/types";
 import { PutCommentRequestType } from "../model/types";
+import { createApi } from "@/shared/api/baseApi";
 
-const API_BASE_URL = "/api/comments";
+const api = createApi("/api/comments");
 
 export const commentApi = {
   // 댓글 추가
-  createComment: async (
+  async createComment(
     commentData: PostCommentRequestType,
-  ): Promise<PostCommentResponseType> => {
-    const response = await fetch(`${API_BASE_URL}/add`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(commentData),
-    });
-    if (!response.ok) throw new Error(`댓글 추가 오류: ${response.statusText}`);
-    return response.json();
+  ): Promise<PostCommentResponseType> {
+    return api.post<PostCommentResponseType>("/add", commentData);
   },
 
   // 댓글 수정
-  updateComment: async (
+  async updateComment(
     id: number,
     commentData: Pick<PutCommentRequestType, "body">,
-  ): Promise<CommentType> => {
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(commentData),
-    });
-    if (!response.ok) throw new Error(`댓글 수정 오류: ${response.statusText}`);
-    return response.json();
+  ): Promise<CommentType> {
+    return api.put<CommentType>(`/${id}`, commentData);
   },
 
   // 댓글 삭제
-  deleteComment: async (id: number): Promise<void> => {
-    const response = await fetch(`${API_BASE_URL}/${id}`, { method: "DELETE" });
-    if (!response.ok) throw new Error(`댓글 삭제 오류: ${response.statusText}`);
+  async deleteComment(id: number): Promise<void> {
+    return api.delete(`/${id}`);
   },
 
   // 댓글 좋아요
-  likeComment: async (
-    id: number,
-    currentLikes: number,
-  ): Promise<CommentType> => {
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ likes: currentLikes + 1 }), // 현재 좋아요 수 + 1
-    });
-    if (!response.ok)
-      throw new Error(`댓글 좋아요 오류: ${response.statusText}`);
-    return response.json();
+  async likeComment(id: number, currentLikes: number): Promise<CommentType> {
+    return api.patch<CommentType>(`/${id}`, { likes: currentLikes + 1 });
   },
 };
