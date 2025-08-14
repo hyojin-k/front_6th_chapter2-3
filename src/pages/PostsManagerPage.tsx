@@ -291,12 +291,6 @@ const PostsManager = () => {
         updatePost={updatePost}
       />
 
-      {/* 댓글 추가 대화상자 */}
-      {/* <CommentAddDialog /> */}
-
-      {/* 댓글 수정 대화상자 */}
-      <CommentEditDialog />
-
       {/* 게시물 상세 보기 대화상자 */}
       <PostDetailDialog
         showPostDetailDialog={showPostDetailDialog}

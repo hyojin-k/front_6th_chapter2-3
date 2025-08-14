@@ -2,12 +2,12 @@ import { Button } from "@/shared/ui";
 import { CommentType } from "@/entities/comment/model/types";
 import { Plus, ThumbsUp, Trash2, Edit2 } from "lucide-react";
 import { Comment } from "@/entities/comment/ui";
-import { useCommentStore } from "@/entities/comment/model/store";
 import { useDeleteCommentMutation, useLikeCommentMutation } from "@/features/comment/api/hooks";
 import { useGetCommentsQuery } from "@/entities/comment/api/hooks";
 import { highlightText } from "@/shared/lib/highlightText";
 import { useState } from "react";
 import { CommentAddDialog } from "./CommentAddDialog";
+import { CommentEditDialog } from "./CommentEditDialog";
 
 interface CommentsProps {
   postId: number;
@@ -16,8 +16,8 @@ interface CommentsProps {
 
 export const Comments = ({ postId, searchQuery }: CommentsProps) => {
   const [showCommentAddDialog, setShowCommentAddDialog] = useState(false);
-
-  const { openEditCommentDialog } = useCommentStore();
+  const [showCommentEditDialog, setShowCommentEditDialog] = useState(false);
+  const [selectedComment, setSelectedComment] = useState<CommentType | null>(null);
 
   const { data: commentsData, isLoading, error } = useGetCommentsQuery(postId);
   const deleteCommentMutation = useDeleteCommentMutation();
@@ -45,6 +45,11 @@ export const Comments = ({ postId, searchQuery }: CommentsProps) => {
         },
       },
     );
+  };
+
+  const handleEditComment = (comment: CommentType) => {
+    setSelectedComment(comment);
+    setShowCommentEditDialog(true);
   };
 
   if (isLoading) {
@@ -77,24 +82,14 @@ export const Comments = ({ postId, searchQuery }: CommentsProps) => {
           <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
             <Comment comment={comment} highlightText={highlightText} searchQuery={searchQuery} />
             <div className="flex items-center space-x-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleLikeComment(comment.id, comment.likes)}
-                disabled={likeCommentMutation.isPending}
-              >
+              <Button variant="ghost" size="sm" onClick={() => handleLikeComment(comment.id, comment.likes)}>
                 <ThumbsUp className="w-3 h-3" />
                 <span className="ml-1 text-xs">{comment.likes}</span>
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => openEditCommentDialog(comment)}>
+              <Button variant="ghost" size="sm" onClick={() => handleEditComment(comment)}>
                 <Edit2 className="w-3 h-3" />
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleDeleteComment(comment.id)}
-                disabled={deleteCommentMutation.isPending}
-              >
+              <Button variant="ghost" size="sm" onClick={() => handleDeleteComment(comment.id)}>
                 <Trash2 className="w-3 h-3" />
               </Button>
             </div>
@@ -106,6 +101,14 @@ export const Comments = ({ postId, searchQuery }: CommentsProps) => {
       {showCommentAddDialog && (
         <CommentAddDialog open={showCommentAddDialog} onClose={() => setShowCommentAddDialog(false)} postId={postId} />
       )}
+
+      {/* 댓글 수정 */}
+      <CommentEditDialog
+        open={showCommentEditDialog}
+        onClose={() => setShowCommentEditDialog(false)}
+        selectedComment={selectedComment}
+        setSelectedComment={setSelectedComment}
+      />
     </div>
   );
 };

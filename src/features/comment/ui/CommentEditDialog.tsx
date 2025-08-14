@@ -1,38 +1,37 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui";
 import { Textarea } from "@/shared/ui";
 import { Button } from "@/shared/ui";
-import { useCommentStore } from "@/entities/comment/model/store";
-import { useEffect, useState } from "react";
+import { CommentType } from "@/entities/comment/model/types";
 import { useUpdateCommentMutation } from "@/features/comment/api";
 
-export const CommentEditDialog = () => {
-  const { showEditCommentDialog, selectedComment, setSelectedComment, closeEditCommentDialog } = useCommentStore();
-  const [editBody, setEditBody] = useState("");
+interface CommentEditDialogProps {
+  open: boolean;
+  onClose: () => void;
+  selectedComment: CommentType | null;
+  setSelectedComment: (comment: CommentType | null) => void;
+}
+
+export const CommentEditDialog = ({ open, onClose, selectedComment, setSelectedComment }: CommentEditDialogProps) => {
   const updateCommentMutation = useUpdateCommentMutation();
-  useEffect(() => {
-    if (selectedComment) {
-      setEditBody(selectedComment.body);
-    }
-  }, [selectedComment]);
 
   const updateComment = () => {
-    if (!selectedComment?.id || !editBody.trim()) return;
+    if (!selectedComment?.id || !selectedComment.body.trim()) return;
 
     updateCommentMutation.mutate(
       {
         id: selectedComment.id,
-        body: editBody,
+        body: selectedComment.body,
       },
       {
         onSuccess: () => {
-          closeEditCommentDialog();
+          onClose();
         },
       },
     );
   };
 
   return (
-    <Dialog open={showEditCommentDialog} onOpenChange={closeEditCommentDialog}>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>댓글 수정</DialogTitle>
