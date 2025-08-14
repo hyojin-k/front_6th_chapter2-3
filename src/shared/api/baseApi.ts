@@ -33,26 +33,28 @@ async function request<T>(
   return response.json();
 }
 
-export function createApi(baseUrl: string) {
+export function createApi(baseUrl?: string) {
+  const apiBaseUrl = baseUrl || "https://dummyjson.com";
+
   return {
     async get<T>(endpoint: string): Promise<T> {
-      return request<T>(baseUrl, endpoint, { method: "GET" });
+      return request<T>(apiBaseUrl, endpoint, { method: "GET" });
     },
 
     async post<T>(endpoint: string, data: unknown): Promise<T> {
-      return request<T>(baseUrl, endpoint, { method: "POST", body: data });
+      return request<T>(apiBaseUrl, endpoint, { method: "POST", body: data });
     },
 
     async put<T>(endpoint: string, data: unknown): Promise<T> {
-      return request<T>(baseUrl, endpoint, { method: "PUT", body: data });
+      return request<T>(apiBaseUrl, endpoint, { method: "PUT", body: data });
     },
 
     async patch<T>(endpoint: string, data: unknown): Promise<T> {
-      return request<T>(baseUrl, endpoint, { method: "PATCH", body: data });
+      return request<T>(apiBaseUrl, endpoint, { method: "PATCH", body: data });
     },
 
     async delete(endpoint: string): Promise<void> {
-      return request<void>(baseUrl, endpoint, { method: "DELETE" });
+      return request<void>(apiBaseUrl, endpoint, { method: "DELETE" });
     },
   };
 }

@@ -1,9 +1,9 @@
+import Header from "@/widgets/Header";
+import Footer from "@/widgets/Footer";
+import PostsManagerPage from "@/pages/PostsManagerPage";
 import { BrowserRouter as Router } from "react-router-dom";
-import Header from "./widgets/Header.tsx";
-import Footer from "./widgets/Footer.tsx";
-import PostsManagerPage from "./pages/PostsManagerPage.tsx";
 
-const App = () => {
+export const App = () => {
   return (
     <Router>
       <div className="flex flex-col min-h-screen">
@@ -16,5 +16,3 @@ const App = () => {
     </Router>
   );
 };
-
-export default App;
