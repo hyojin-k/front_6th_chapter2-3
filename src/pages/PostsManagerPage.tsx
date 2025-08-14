@@ -8,7 +8,7 @@ import {
   PostType,
   TagType,
 } from "@/entities/post/model/types";
-import { GetUsersResponseType, UserType } from "@/entities/user/model/types";
+import { UserType } from "@/entities/user/model/types";
 import { SearchBar } from "@/widgets/SearchBar";
 import { Pagination } from "@/shared/ui/Pagination";
 import {
@@ -64,11 +64,44 @@ const PostsManager = () => {
     navigate(`?${params.toString()}`);
   };
 
+  // 게시물 정렬 함수 (클라이언트 사이드)
+  const sortPosts = (posts: PostType[]) => {
+    if (!sortBy || sortBy === "none") return posts;
+
+    return [...posts].sort((a, b) => {
+      let aValue: number | string;
+      let bValue: number | string;
+
+      switch (sortBy) {
+        case "id":
+          aValue = a.id;
+          bValue = b.id;
+          break;
+        case "title":
+          aValue = a.title.toLowerCase();
+          bValue = b.title.toLowerCase();
+          break;
+        case "reactions":
+          aValue = (a.reactions?.likes || 0) + (a.reactions?.dislikes || 0);
+          bValue = (b.reactions?.likes || 0) + (b.reactions?.dislikes || 0);
+          break;
+        default:
+          return 0;
+      }
+
+      if (sortOrder === "asc") {
+        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+      } else {
+        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+      }
+    });
+  };
+
   // 게시물 가져오기
   const fetchPosts = () => {
     setLoading(true);
     let postsData: GetPostsResponseType;
-    let usersData: GetUsersResponseType;
+    let usersData: UserType[];
 
     fetch(`/api/posts?limit=${limit}&skip=${skip}`)
       .then((response) => response.json())
@@ -84,7 +117,9 @@ const PostsManager = () => {
           author: usersData.find((user: UserType) => user.id === post.userId),
         }));
 
-        setPosts(postsWithUsers);
+        // 클라이언트 사이드 정렬 적용
+        const sortedPosts = sortPosts(postsWithUsers);
+        setPosts(sortedPosts);
         setTotal(postsData.total);
       })
       .catch((error) => {
@@ -116,7 +151,8 @@ const PostsManager = () => {
     try {
       const response = await fetch(`/api/posts/search?q=${searchQuery}`);
       const data = await response.json();
-      setPosts(data.posts);
+      const sortedPosts = sortPosts(data.posts);
+      setPosts(sortedPosts);
       setTotal(data.total);
     } catch (error) {
       console.error("게시물 검색 오류:", error);
@@ -146,7 +182,8 @@ const PostsManager = () => {
         ),
       }));
 
-      setPosts(postsWithUsers);
+      const sortedPosts = sortPosts(postsWithUsers);
+      setPosts(sortedPosts);
       setTotal(postsData.total);
     } catch (error) {
       console.error("태그별 게시물 가져오기 오류:", error);

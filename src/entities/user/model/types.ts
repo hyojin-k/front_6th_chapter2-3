@@ -79,7 +79,12 @@ export interface GetUsersRequestType {
   limit: number;
   select?: string;
 }
-export type GetUsersResponseType = UserType[];
+export interface GetUsersResponseType {
+  users: UserType[];
+  limit: number;
+  skip: number;
+  total: number;
+}
 
 // 사용자 상세 조회
 export type GetUserResponseType = UserDetailType;

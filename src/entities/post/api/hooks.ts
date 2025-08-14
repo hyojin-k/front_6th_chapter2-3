@@ -16,18 +16,26 @@ export const useGetPostsQuery = (params: GetPostsRequestType) => {
 };
 
 // 게시물 검색 조회
-export const useGetSearchPostsQuery = (searchQuery: string) => {
+export const useGetSearchPostsQuery = (
+  searchQuery: string,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: postQueryKeys.search(searchQuery),
     queryFn: () => postApi.getSearchPosts(searchQuery),
+    enabled: options?.enabled ?? !!searchQuery,
   });
 };
 
 // 게시물 태그 조회
-export const useGetPostsByTagQuery = (tag: string) => {
+export const useGetPostsByTagQuery = (
+  tag: string,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: postQueryKeys.byTag(tag),
     queryFn: () => postApi.getPostsByTag(tag),
+    enabled: options?.enabled ?? true,
   });
 };
 
@@ -45,9 +53,10 @@ export const useCreatePostMutation = () => {
 
   return useMutation({
     mutationFn: (req: PostPostRequestType) => postApi.createPost(req),
-    onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: postQueryKeys.lists() });
-      queryClient.setQueryData(postQueryKeys.detail(res.id), res);
+    onSuccess: () => {
+      console.log("게시물 추가 성공 - 캐시 무효화 시작");
+      // 모든 쿼리 무효화
+      queryClient.invalidateQueries();
     },
   });
 };
@@ -58,9 +67,10 @@ export const useUpdatePostMutation = () => {
 
   return useMutation({
     mutationFn: (req: PutPostRequestType) => postApi.updatePost(req.id, req),
-    onSuccess: (res) => {
-      queryClient.setQueryData(postQueryKeys.detail(res.id), res);
-      queryClient.invalidateQueries({ queryKey: postQueryKeys.lists() });
+    onSuccess: () => {
+      console.log("게시물 수정 성공 - 캐시 무효화 시작");
+      // 모든 쿼리 무효화
+      queryClient.invalidateQueries();
     },
   });
 };
@@ -71,10 +81,10 @@ export const useDeletePostMutation = () => {
 
   return useMutation({
     mutationFn: (id: number) => postApi.deletePost(id),
-    onSuccess: (_, deletedId) => {
-      queryClient.removeQueries({ queryKey: postQueryKeys.detail(deletedId) });
-      queryClient.invalidateQueries({ queryKey: postQueryKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: postQueryKeys.all });
+    onSuccess: () => {
+      console.log("게시물 삭제 성공 - 캐시 무효화 시작");
+      // 모든 쿼리 무효화
+      queryClient.invalidateQueries();
     },
   });
 };
