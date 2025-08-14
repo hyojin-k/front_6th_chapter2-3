@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { postApi } from "./postApi";
+import { postQueryKeys } from "./queryKeys";
 import { GetPostsRequestType } from "../model/types";
 
 // 게시물 목록 조회
 export const useGetPostsQuery = (params: GetPostsRequestType) => {
   return useQuery({
-    queryKey: ["posts", params],
+    queryKey: postQueryKeys.list(params),
     queryFn: () => postApi.getPosts(params),
   });
 };
@@ -13,7 +14,7 @@ export const useGetPostsQuery = (params: GetPostsRequestType) => {
 // 게시물 검색 조회
 export const useGetSearchPostsQuery = (searchQuery: string) => {
   return useQuery({
-    queryKey: ["searchPosts", searchQuery],
+    queryKey: postQueryKeys.search(searchQuery),
     queryFn: () => postApi.getSearchPosts(searchQuery),
   });
 };
@@ -21,7 +22,7 @@ export const useGetSearchPostsQuery = (searchQuery: string) => {
 // 게시물 태그 조회
 export const useGetPostsByTagQuery = (tag: string) => {
   return useQuery({
-    queryKey: ["postsByTag", tag],
+    queryKey: postQueryKeys.byTag(tag),
     queryFn: () => postApi.getPostsByTag(tag),
   });
 };
@@ -29,7 +30,7 @@ export const useGetPostsByTagQuery = (tag: string) => {
 // 태그 목록 조회
 export const useGetTagsQuery = () => {
   return useQuery({
-    queryKey: ["tags"],
+    queryKey: postQueryKeys.tags(),
     queryFn: () => postApi.getTags(),
   });
 };

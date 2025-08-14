@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { commentApi } from "./commentApi";
 import { PostCommentRequestType, PutCommentRequestType } from "../model/types";
+import { commentQueryKeys } from "../../../entities/comment/api";
 
 // 댓글 추가
 export const useCreateCommentMutation = () => {
@@ -9,7 +10,7 @@ export const useCreateCommentMutation = () => {
   return useMutation({
     mutationFn: (req: PostCommentRequestType) => commentApi.createComment(req),
     onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: ["comments", res.postId] });
+      queryClient.invalidateQueries({ queryKey: commentQueryKeys.list(res.postId) });
     },
   });
 };
@@ -21,7 +22,8 @@ export const useUpdateCommentMutation = () => {
   return useMutation({
     mutationFn: (req: PutCommentRequestType) => commentApi.updateComment(req.id, req),
     onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: ["comments", res.id] });
+      queryClient.setQueryData(commentQueryKeys.detail(res.id), res);
+      queryClient.invalidateQueries({ queryKey: commentQueryKeys.list(res.postId) });
     },
   });
 };
@@ -33,7 +35,8 @@ export const useDeleteCommentMutation = () => {
   return useMutation({
     mutationFn: (id: number) => commentApi.deleteComment(id),
     onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: ["comments", res] });
+      queryClient.removeQueries({ queryKey: commentQueryKeys.detail(res.id) });
+      queryClient.invalidateQueries({ queryKey: commentQueryKeys.list(res.postId) });
     },
   });
 };
@@ -45,7 +48,8 @@ export const useLikeCommentMutation = () => {
   return useMutation({
     mutationFn: (id: number) => commentApi.likeComment(id),
     onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: ["comments", res] });
+      queryClient.setQueryData(commentQueryKeys.detail(res.id), res);
+      queryClient.invalidateQueries({ queryKey: commentQueryKeys.list(res.postId) });
     },
   });
 };

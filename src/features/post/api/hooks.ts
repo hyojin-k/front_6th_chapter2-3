@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PostPostRequestType, PutPostRequestType } from "../model/types";
 import { postApi } from "./postApi";
+import { postQueryKeys } from "../../../entities/post/api";
 
 // 게시물 추가
 export const useCreatePostMutation = () => {
@@ -9,7 +10,8 @@ export const useCreatePostMutation = () => {
   return useMutation({
     mutationFn: (req: PostPostRequestType) => postApi.createPost(req),
     onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: ["posts", res.id] });
+      queryClient.invalidateQueries({ queryKey: postQueryKeys.lists() });
+      queryClient.setQueryData(postQueryKeys.detail(res.id), res);
     },
   });
 };
@@ -21,7 +23,8 @@ export const useUpdatePostMutation = () => {
   return useMutation({
     mutationFn: (req: PutPostRequestType) => postApi.updatePost(req.id, req),
     onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: ["posts", res.id] });
+      queryClient.setQueryData(postQueryKeys.detail(res.id), res);
+      queryClient.invalidateQueries({ queryKey: postQueryKeys.lists() });
     },
   });
 };
@@ -32,8 +35,10 @@ export const useDeletePostMutation = () => {
 
   return useMutation({
     mutationFn: (id: number) => postApi.deletePost(id),
-    onSuccess: (res) => {
-      queryClient.invalidateQueries({ queryKey: ["posts", res] });
+    onSuccess: (_, deletedId) => {
+      queryClient.removeQueries({ queryKey: postQueryKeys.detail(deletedId) });
+      queryClient.invalidateQueries({ queryKey: postQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: postQueryKeys.all });
     },
   });
 };
