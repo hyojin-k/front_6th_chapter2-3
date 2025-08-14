@@ -1,15 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { commentApi } from "./commentApi";
+import { commentApi } from "@/entities/comment/api/commentApi";
 import { commentQueryKeys } from "@/entities/comment/api/queryKeys";
 import {
+  CommentType,
+  GetCommentsResponseType,
   DeleteCommentRequestType,
   LikeCommentRequestType,
   PostCommentRequestType,
   PutCommentRequestType,
-} from "../model/types";
-import {
-  CommentType,
-  GetCommentsResponseType,
 } from "@/entities/comment/model/types";
 
 // 댓글 추가

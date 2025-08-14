@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { PostCommentRequestType } from "@/features/comment/model/types";
+import { PostCommentRequestType } from "@/entities/comment/model/types";
 
 interface CommentDialogState {
   newComment: Partial<PostCommentRequestType>;

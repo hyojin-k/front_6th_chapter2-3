@@ -24,7 +24,7 @@ export const Comments = ({ postId, searchQuery }: CommentsProps) => {
     null,
   );
 
-  const { data: commentsData, isLoading, error } = useGetCommentsQuery(postId);
+  const { data: commentsData } = useGetCommentsQuery(postId);
   const deleteCommentMutation = useDeleteCommentMutation();
   const likeCommentMutation = useLikeCommentMutation();
 
@@ -56,19 +56,6 @@ export const Comments = ({ postId, searchQuery }: CommentsProps) => {
     setSelectedComment(comment);
     setShowCommentEditDialog(true);
   };
-
-  if (isLoading) {
-    return <div className="mt-2 text-sm text-gray-500">댓글 로딩 중...</div>;
-  }
-
-  if (error) {
-    console.error("댓글 로딩 에러:", error);
-    return (
-      <div className="mt-2 text-sm text-red-500">
-        댓글을 불러오는데 실패했습니다.
-      </div>
-    );
-  }
 
   const comments = commentsData?.comments || [];
 
