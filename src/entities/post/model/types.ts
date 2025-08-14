@@ -39,3 +39,20 @@ export interface GetPostsRequestType {
   skip: number;
 }
 export type GetPostsResponseType = PostsType;
+
+// 게시물 추가
+export interface PostPostRequestType {
+  title: string;
+  body: string;
+  userId: number;
+}
+export interface PostPostResponseType {
+  id: number;
+  title: string;
+  body: string;
+  userId: number;
+}
+
+// 게시물 수정
+export type PutPostRequestType = PostType;
+export type PutPostResponseType = Omit<PostType, "author" | "views">;

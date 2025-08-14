@@ -5,7 +5,7 @@ import { Comment } from "@/entities/comment/ui";
 import {
   useDeleteCommentMutation,
   useLikeCommentMutation,
-} from "@/features/comment/api/hooks";
+} from "@/entities/comment/api/hooks";
 import { useGetCommentsQuery } from "@/entities/comment/api/hooks";
 import { highlightText } from "@/shared/lib/highlightText";
 import { useState } from "react";

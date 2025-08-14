@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui";
 import { Textarea } from "@/shared/ui";
 import { Button } from "@/shared/ui";
 import { useCommentStore } from "@/entities/comment/model/store";
-import { useCreateCommentMutation } from "../api/hooks";
+import { useCreateCommentMutation } from "@/entities/comment/api/hooks";
 
 interface CommentAddDialogProps {
   open: boolean;
