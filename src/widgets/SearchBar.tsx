@@ -21,7 +21,7 @@ interface SearchBarProps {
   sortBy: string;
   setSortBy: (sortBy: string) => void;
   sortOrder: string;
-  setSortOrder: (sortOrder: string) => void;
+  setSortOrder: (sortOrder: "asc" | "desc") => void;
 }
 
 export const SearchBar = ({
@@ -92,7 +92,7 @@ export const SearchBar = ({
       <Select
         value={sortOrder}
         onValueChange={(value) => {
-          setSortOrder(value);
+          setSortOrder(value as "asc" | "desc");
           updateURL();
         }}
       >

@@ -1,276 +1,60 @@
-import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button, Card, CardContent, CardHeader, CardTitle } from "../shared/ui";
 
-import {
-  GetPostsResponseType,
-  PostType,
-  TagType,
-} from "@/entities/post/model/types";
-import { UserType } from "@/entities/user/model/types";
 import { SearchBar } from "@/widgets/SearchBar";
 import { Pagination } from "@/shared/ui/Pagination";
-import {
-  PostAddDialog,
-  PostEditDialog,
-  PostDetailDialog,
-  PostTable,
-} from "@/features/post/ui";
+import { PostAddDialog, PostDetailDialog, PostTable } from "@/features/post/ui";
+import { usePosts } from "@/features/post/api/usePosts";
+import { URLManager } from "@/shared/lib/urlManager";
 
 const PostsManager = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-
-  // 상태 관리
-  const [posts, setPosts] = useState<PostType[]>([]);
-  const [total, setTotal] = useState(0);
-  const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"));
-  const [limit, setLimit] = useState(
-    parseInt(queryParams.get("limit") || "10"),
-  );
-  const [searchQuery, setSearchQuery] = useState(
-    queryParams.get("search") || "",
-  );
-  const [selectedPost, setSelectedPost] = useState<Partial<PostType> | null>(
-    null,
-  );
-  const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "");
-  const [sortOrder, setSortOrder] = useState(
-    queryParams.get("sortOrder") || "asc",
-  );
-  const [showAddDialog, setShowAddDialog] = useState(false);
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [newPost, setNewPost] = useState<Partial<PostType>>({
-    title: "",
-    body: "",
-    userId: 1,
-  });
-  const [loading, setLoading] = useState(false);
-  const [tags, setTags] = useState<TagType[]>([]);
-  const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "");
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
+  const {
+    posts,
+    total,
+    loading,
+    selectedPost,
+    tags,
+    selectedTag,
+    searchQuery,
+    sortBy,
+    sortOrder,
+    pagination,
+    dialogs,
+    newPost,
+    setSelectedTag,
+    setSearchQuery,
+    setSortBy,
+    setSortOrder,
+    setPagination,
+    setDialog,
+    setNewPost,
+    setSelectedPost,
+    handleSearch,
+    handleAddPost,
+    handleDeletePost,
+    handleOpenPostDetail,
+  } = usePosts();
 
   // URL 업데이트 함수
   const updateURL = () => {
-    const params = new URLSearchParams();
-    if (skip) params.set("skip", skip.toString());
-    if (limit) params.set("limit", limit.toString());
-    if (searchQuery) params.set("search", searchQuery);
-    if (sortBy) params.set("sortBy", sortBy);
-    if (sortOrder) params.set("sortOrder", sortOrder);
-    if (selectedTag) params.set("tag", selectedTag);
-    navigate(`?${params.toString()}`);
-  };
-
-  // 게시물 정렬 함수 (클라이언트 사이드)
-  const sortPosts = (posts: PostType[]) => {
-    if (!sortBy || sortBy === "none") return posts;
-
-    return [...posts].sort((a, b) => {
-      let aValue: number | string;
-      let bValue: number | string;
-
-      switch (sortBy) {
-        case "id":
-          aValue = a.id;
-          bValue = b.id;
-          break;
-        case "title":
-          aValue = a.title.toLowerCase();
-          bValue = b.title.toLowerCase();
-          break;
-        case "reactions":
-          aValue = (a.reactions?.likes || 0) + (a.reactions?.dislikes || 0);
-          bValue = (b.reactions?.likes || 0) + (b.reactions?.dislikes || 0);
-          break;
-        default:
-          return 0;
-      }
-
-      if (sortOrder === "asc") {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-      } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
-      }
+    URLManager.updateURL(navigate, {
+      skip: pagination.skip,
+      limit: pagination.limit,
+      search: searchQuery,
+      sortBy,
+      sortOrder,
+      tag: selectedTag,
     });
   };
-
-  // 게시물 가져오기
-  const fetchPosts = () => {
-    setLoading(true);
-    let postsData: GetPostsResponseType;
-    let usersData: UserType[];
-
-    fetch(`/api/posts?limit=${limit}&skip=${skip}`)
-      .then((response) => response.json())
-      .then((data) => {
-        postsData = data;
-        return fetch("/api/users?limit=0&select=username,image");
-      })
-      .then((response) => response.json())
-      .then((users) => {
-        usersData = users.users;
-        const postsWithUsers = postsData.posts.map((post) => ({
-          ...post,
-          author: usersData.find((user: UserType) => user.id === post.userId),
-        }));
-
-        // 클라이언트 사이드 정렬 적용
-        const sortedPosts = sortPosts(postsWithUsers);
-        setPosts(sortedPosts);
-        setTotal(postsData.total);
-      })
-      .catch((error) => {
-        console.error("게시물 가져오기 오류:", error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-
-  // 태그 가져오기
-  const fetchTags = async () => {
-    try {
-      const response = await fetch("/api/posts/tags");
-      const data = await response.json();
-      setTags(data);
-    } catch (error) {
-      console.error("태그 가져오기 오류:", error);
-    }
-  };
-
-  // 게시물 검색
-  const searchPosts = async () => {
-    if (!searchQuery) {
-      fetchPosts();
-      return;
-    }
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/posts/search?q=${searchQuery}`);
-      const data = await response.json();
-      const sortedPosts = sortPosts(data.posts);
-      setPosts(sortedPosts);
-      setTotal(data.total);
-    } catch (error) {
-      console.error("게시물 검색 오류:", error);
-    }
-    setLoading(false);
-  };
-
-  // 태그별 게시물 가져오기
-  const fetchPostsByTag = async (tag: string) => {
-    if (!tag || tag === "all") {
-      fetchPosts();
-      return;
-    }
-    setLoading(true);
-    try {
-      const [postsResponse, usersResponse] = await Promise.all([
-        fetch(`/api/posts/tag/${tag}`),
-        fetch("/api/users?limit=0&select=username,image"),
-      ]);
-      const postsData = await postsResponse.json();
-      const usersData = await usersResponse.json();
-
-      const postsWithUsers = postsData.posts.map((post: PostType) => ({
-        ...post,
-        author: usersData.users.find(
-          (user: UserType) => user.id === post.userId,
-        ),
-      }));
-
-      const sortedPosts = sortPosts(postsWithUsers);
-      setPosts(sortedPosts);
-      setTotal(postsData.total);
-    } catch (error) {
-      console.error("태그별 게시물 가져오기 오류:", error);
-    }
-    setLoading(false);
-  };
-
-  // 게시물 추가
-  const addPost = async () => {
-    try {
-      const response = await fetch("/api/posts/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newPost),
-      });
-      const data = await response.json();
-      setPosts([data, ...posts]);
-      setShowAddDialog(false);
-      setNewPost({ title: "", body: "", userId: 1 });
-    } catch (error) {
-      console.error("게시물 추가 오류:", error);
-    }
-  };
-
-  // 게시물 업데이트
-  const updatePost = async () => {
-    try {
-      const response = await fetch(`/api/posts/${selectedPost?.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedPost),
-      });
-      const data = await response.json();
-      setPosts(posts.map((post) => (post.id === data.id ? data : post)));
-      setShowEditDialog(false);
-    } catch (error) {
-      console.error("게시물 업데이트 오류:", error);
-    }
-  };
-
-  // 게시물 삭제
-  const deletePost = async (id: number) => {
-    try {
-      await fetch(`/api/posts/${id}`, {
-        method: "DELETE",
-      });
-      setPosts(posts.filter((post) => post.id !== id));
-    } catch (error) {
-      console.error("게시물 삭제 오류:", error);
-    }
-  };
-
-  // 게시물 상세 보기
-  const openPostDetail = (post: PostType) => {
-    setSelectedPost(post);
-    setShowPostDetailDialog(true);
-  };
-
-  useEffect(() => {
-    fetchTags();
-  }, []);
-
-  useEffect(() => {
-    if (selectedTag) {
-      fetchPostsByTag(selectedTag);
-    } else {
-      fetchPosts();
-    }
-    updateURL();
-  }, [skip, limit, sortBy, sortOrder, selectedTag]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    setSkip(parseInt(params.get("skip") || "0"));
-    setLimit(parseInt(params.get("limit") || "10"));
-    setSearchQuery(params.get("search") || "");
-    setSortBy(params.get("sortBy") || "");
-    setSortOrder(params.get("sortOrder") || "asc");
-    setSelectedTag(params.get("tag") || "");
-  }, [location.search]);
 
   return (
     <Card className="w-full max-w-6xl mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>게시물 관리자</span>
-          <Button onClick={() => setShowAddDialog(true)}>
+          <Button onClick={() => setDialog("showAddDialog", true)}>
             <Plus className="w-4 h-4 mr-2" />
             게시물 추가
           </Button>
@@ -282,10 +66,10 @@ const PostsManager = () => {
           <SearchBar
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
-            searchPosts={searchPosts}
+            searchPosts={handleSearch}
             selectedTag={selectedTag}
             setSelectedTag={setSelectedTag}
-            fetchPostsByTag={fetchPostsByTag}
+            fetchPostsByTag={() => {}} // 이제 usePosts 훅에서 처리
             updateURL={updateURL}
             tags={tags}
             sortBy={sortBy}
@@ -303,20 +87,20 @@ const PostsManager = () => {
               selectedTag={selectedTag}
               setSelectedTag={setSelectedTag}
               updateURL={updateURL}
-              openPostDetail={openPostDetail}
+              openPostDetail={handleOpenPostDetail}
               setSelectedPost={setSelectedPost}
-              setShowEditDialog={setShowEditDialog}
-              deletePost={deletePost}
+              setShowEditDialog={(show) => setDialog("showEditDialog", show)}
+              deletePost={handleDeletePost}
               searchQuery={searchQuery}
             />
           )}
 
           {/* 페이지네이션 */}
           <Pagination
-            limit={limit}
-            setLimit={setLimit}
-            skip={skip}
-            setSkip={setSkip}
+            limit={pagination.limit}
+            setLimit={(limit) => setPagination(pagination.skip, limit)}
+            skip={pagination.skip}
+            setSkip={(skip) => setPagination(skip, pagination.limit)}
             total={total}
           />
         </div>
@@ -324,26 +108,19 @@ const PostsManager = () => {
 
       {/* 게시물 추가 대화상자 */}
       <PostAddDialog
-        showAddDialog={showAddDialog}
-        setShowAddDialog={setShowAddDialog}
+        showAddDialog={dialogs.showAddDialog}
+        setShowAddDialog={(show) => setDialog("showAddDialog", show)}
         newPost={newPost}
         setNewPost={setNewPost}
-        addPost={addPost}
-      />
-
-      {/* 게시물 수정 대화상자 */}
-      <PostEditDialog
-        showEditDialog={showEditDialog}
-        setShowEditDialog={setShowEditDialog}
-        selectedPost={selectedPost}
-        setSelectedPost={setSelectedPost}
-        updatePost={updatePost}
+        addPost={handleAddPost}
       />
 
       {/* 게시물 상세 보기 대화상자 */}
       <PostDetailDialog
-        showPostDetailDialog={showPostDetailDialog}
-        setShowPostDetailDialog={setShowPostDetailDialog}
+        showPostDetailDialog={dialogs.showPostDetailDialog}
+        setShowPostDetailDialog={(show) =>
+          setDialog("showPostDetailDialog", show)
+        }
         selectedPost={selectedPost}
         searchQuery={searchQuery}
       />

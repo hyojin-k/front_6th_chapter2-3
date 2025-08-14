@@ -19,6 +19,7 @@ import {
 import { highlightText } from "@/shared/lib";
 import { useState } from "react";
 import { UserDetailDialog } from "@/entities/user/ui/UserDetailDialog";
+import { PostEditDialog } from "./PostEditDialog";
 
 interface PostTableProps {
   posts: PostType[];
@@ -31,14 +32,13 @@ interface PostTableProps {
   deletePost: (id: number) => void;
   searchQuery: string;
 }
+
 export const PostTable = ({
   posts,
   selectedTag,
   setSelectedTag,
   updateURL,
   openPostDetail,
-  setSelectedPost,
-  setShowEditDialog,
   deletePost,
   searchQuery,
 }: PostTableProps) => {
@@ -46,6 +46,16 @@ export const PostTable = ({
     undefined,
   );
   const [showUserModal, setShowUserModal] = useState(false);
+
+  const [selectedPost, setSelectedPost] = useState<Partial<PostType> | null>(
+    null,
+  );
+  const [showPostEditDialog, setShowPostEditDialog] = useState(false);
+
+  const handleEditPost = (post: Partial<PostType>) => {
+    setSelectedPost(post);
+    setShowPostEditDialog(true);
+  };
 
   return (
     <Table>
@@ -124,10 +134,7 @@ export const PostTable = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => {
-                    setSelectedPost(post);
-                    setShowEditDialog(true);
-                  }}
+                  onClick={() => handleEditPost(post)}
                 >
                   <Edit2 className="w-4 h-4" />
                 </Button>
@@ -149,6 +156,15 @@ export const PostTable = ({
           open={showUserModal}
           onClose={() => setShowUserModal(false)}
           selectedUser={selectedUser}
+        />
+      )}
+
+      {showPostEditDialog && (
+        <PostEditDialog
+          open={showPostEditDialog}
+          onClose={() => setShowPostEditDialog(false)}
+          selectedPost={selectedPost}
+          setSelectedPost={setSelectedPost}
         />
       )}
     </Table>

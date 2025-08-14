@@ -3,24 +3,39 @@ import { Input } from "@/shared/ui";
 import { Textarea } from "@/shared/ui";
 import { Button } from "@/shared/ui";
 import { PostType } from "@/entities/post/model/types";
+import { useUpdatePostMutation } from "@/entities/post/api/hooks";
 
 interface PostEditDialogProps {
-  showEditDialog: boolean;
-  setShowEditDialog: (showEditDialog: boolean) => void;
+  open: boolean;
+  onClose: () => void;
   selectedPost: Partial<PostType> | null;
   setSelectedPost: (selectedPost: Partial<PostType> | null) => void;
-  updatePost: () => void;
 }
 
 export const PostEditDialog = ({
-  showEditDialog,
-  setShowEditDialog,
+  open,
+  onClose,
   selectedPost,
   setSelectedPost,
-  updatePost,
 }: PostEditDialogProps) => {
+  const updatePostMutation = useUpdatePostMutation();
+
+  const updatePost = () => {
+    if (!selectedPost?.id) return;
+
+    updatePostMutation.mutate(selectedPost as PostType, {
+      onSuccess: () => {
+        onClose();
+        setSelectedPost(null);
+      },
+      onError: (error) => {
+        console.error("게시물 수정 실패:", error);
+      },
+    });
+  };
+
   return (
-    <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>게시물 수정</DialogTitle>
