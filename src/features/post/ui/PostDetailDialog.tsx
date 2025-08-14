@@ -4,20 +4,20 @@ import { Comments } from "@/features/comment/ui";
 import { highlightText } from "@/shared/lib";
 
 interface PostDetailDialogProps {
-  showPostDetailDialog: boolean;
-  setShowPostDetailDialog: (showPostDetailDialog: boolean) => void;
+  open: boolean;
+  onClose: () => void;
   selectedPost: Partial<PostType> | null;
   searchQuery: string;
 }
 
 export const PostDetailDialog = ({
-  showPostDetailDialog,
-  setShowPostDetailDialog,
+  open,
+  onClose,
   selectedPost,
   searchQuery,
 }: PostDetailDialogProps) => {
   return (
-    <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>

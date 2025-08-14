@@ -4,7 +4,7 @@ import { Button, Card, CardContent, CardHeader, CardTitle } from "../shared/ui";
 
 import { SearchBar } from "@/widgets/SearchBar";
 import { Pagination } from "@/shared/ui/Pagination";
-import { PostAddDialog, PostDetailDialog, PostTable } from "@/features/post/ui";
+import { PostAddDialog, PostTable } from "@/features/post/ui";
 import { usePosts } from "@/features/post/api/usePosts";
 import { URLManager } from "@/shared/lib/urlManager";
 
@@ -14,7 +14,6 @@ const PostsManager = () => {
     posts,
     total,
     loading,
-    selectedPost,
     tags,
     selectedTag,
     searchQuery,
@@ -34,7 +33,6 @@ const PostsManager = () => {
     handleSearch,
     handleAddPost,
     handleDeletePost,
-    handleOpenPostDetail,
   } = usePosts();
 
   // URL 업데이트 함수
@@ -87,7 +85,6 @@ const PostsManager = () => {
               selectedTag={selectedTag}
               setSelectedTag={setSelectedTag}
               updateURL={updateURL}
-              openPostDetail={handleOpenPostDetail}
               setSelectedPost={setSelectedPost}
               setShowEditDialog={(show) => setDialog("showEditDialog", show)}
               deletePost={handleDeletePost}
@@ -113,16 +110,6 @@ const PostsManager = () => {
         newPost={newPost}
         setNewPost={setNewPost}
         addPost={handleAddPost}
-      />
-
-      {/* 게시물 상세 보기 대화상자 */}
-      <PostDetailDialog
-        showPostDetailDialog={dialogs.showPostDetailDialog}
-        setShowPostDetailDialog={(show) =>
-          setDialog("showPostDetailDialog", show)
-        }
-        selectedPost={selectedPost}
-        searchQuery={searchQuery}
       />
     </Card>
   );

@@ -20,13 +20,13 @@ import { highlightText } from "@/shared/lib";
 import { useState } from "react";
 import { UserDetailDialog } from "@/entities/user/ui/UserDetailDialog";
 import { PostEditDialog } from "./PostEditDialog";
+import { PostDetailDialog } from "./PostDetailDialog";
 
 interface PostTableProps {
   posts: PostType[];
   selectedTag: string;
   setSelectedTag: (tag: string) => void;
   updateURL: () => void;
-  openPostDetail: (post: PostType) => void;
   setSelectedPost: (post: PostType) => void;
   setShowEditDialog: (show: boolean) => void;
   deletePost: (id: number) => void;
@@ -38,15 +38,19 @@ export const PostTable = ({
   selectedTag,
   setSelectedTag,
   updateURL,
-  openPostDetail,
   deletePost,
   searchQuery,
 }: PostTableProps) => {
+  // 사용자 상세 보기
   const [selectedUser, setSelectedUser] = useState<UserType | undefined>(
     undefined,
   );
   const [showUserModal, setShowUserModal] = useState(false);
 
+  // 게시물 상세 보기
+  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
+
+  // 게시물 수정
   const [selectedPost, setSelectedPost] = useState<Partial<PostType> | null>(
     null,
   );
@@ -127,7 +131,10 @@ export const PostTable = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => openPostDetail(post)}
+                  onClick={() => {
+                    setSelectedPost(post);
+                    setShowPostDetailDialog(true);
+                  }}
                 >
                   <MessageSquare className="w-4 h-4" />
                 </Button>
@@ -151,6 +158,7 @@ export const PostTable = ({
         ))}
       </TableBody>
 
+      {/* 사용자 상세 보기 */}
       {selectedUser && (
         <UserDetailDialog
           open={showUserModal}
@@ -159,6 +167,17 @@ export const PostTable = ({
         />
       )}
 
+      {/* 게시물 상세 보기 */}
+      {showPostDetailDialog && (
+        <PostDetailDialog
+          open={showPostDetailDialog}
+          onClose={() => setShowPostDetailDialog(false)}
+          selectedPost={selectedPost}
+          searchQuery={searchQuery}
+        />
+      )}
+
+      {/* 게시물 수정 */}
       {showPostEditDialog && (
         <PostEditDialog
           open={showPostEditDialog}
