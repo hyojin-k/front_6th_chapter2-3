@@ -1,34 +1,63 @@
 import { Button } from "@/shared/ui";
 import { CommentType } from "@/entities/comment/model/types";
 import { Plus, ThumbsUp, Trash2, Edit2 } from "lucide-react";
-import { PostCommentRequestType } from "@/features/comment/model/types";
 import { Comment } from "@/entities/comment/ui";
+import { useCommentStore } from "@/entities/comment/model/store";
+import { useDeleteCommentMutation, useLikeCommentMutation } from "@/features/comment/api/hooks";
+import { useGetCommentsQuery } from "@/entities/comment/api/hooks";
+import { highlightText } from "@/shared/lib/highlightText";
+import { useState } from "react";
+import { CommentAddDialog } from "./CommentAddDialog";
 
 interface CommentsProps {
-  comments: CommentType[];
   postId: number;
-  setNewComment: (comment: Partial<PostCommentRequestType>) => void;
-  setShowAddCommentDialog: (show: boolean) => void;
-  highlightText: (text: string, query: string) => React.ReactNode;
   searchQuery: string;
-  likeComment: (id: number, postId: number) => void;
-  deleteComment: (id: number, postId: number) => void;
-  setSelectedComment: (comment: CommentType) => void;
-  setShowEditCommentDialog: (show: boolean) => void;
 }
 
-export const Comments = ({
-  comments,
-  postId,
-  setNewComment,
-  setShowAddCommentDialog,
-  highlightText,
-  searchQuery,
-  likeComment,
-  deleteComment,
-  setSelectedComment,
-  setShowEditCommentDialog,
-}: CommentsProps) => {
+export const Comments = ({ postId, searchQuery }: CommentsProps) => {
+  const [showCommentAddDialog, setShowCommentAddDialog] = useState(false);
+
+  const { openEditCommentDialog } = useCommentStore();
+
+  const { data: commentsData, isLoading, error } = useGetCommentsQuery(postId);
+  const deleteCommentMutation = useDeleteCommentMutation();
+  const likeCommentMutation = useLikeCommentMutation();
+
+  const handleDeleteComment = (commentId: number) => {
+    deleteCommentMutation.mutate(
+      { id: commentId, postId },
+      {
+        onError: (error) => {
+          console.error("댓글 삭제 실패:", error);
+          alert("댓글 삭제에 실패했습니다.");
+        },
+      },
+    );
+  };
+
+  const handleLikeComment = (commentId: number, currentLikes: number) => {
+    likeCommentMutation.mutate(
+      { id: commentId, currentLikes, postId },
+      {
+        onError: (error) => {
+          console.error("댓글 좋아요 실패:", error);
+          alert("댓글 좋아요에 실패했습니다.");
+        },
+      },
+    );
+  };
+
+  if (isLoading) {
+    return <div className="mt-2 text-sm text-gray-500">댓글 로딩 중...</div>;
+  }
+
+  if (error) {
+    console.error("댓글 로딩 에러:", error);
+    return <div className="mt-2 text-sm text-red-500">댓글을 불러오는데 실패했습니다.</div>;
+  }
+
+  const comments = commentsData?.comments || [];
+
   return (
     <div className="mt-2">
       <div className="flex items-center justify-between mb-2">
@@ -36,9 +65,7 @@ export const Comments = ({
         <Button
           size="sm"
           onClick={() => {
-            setNewComment({ body: "", postId, userId: 1 });
-            // setNewComment((prev) => ({ ...prev, postId }));
-            setShowAddCommentDialog(true);
+            setShowCommentAddDialog(true);
           }}
         >
           <Plus className="w-3 h-3 mr-1" />
@@ -50,27 +77,35 @@ export const Comments = ({
           <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
             <Comment comment={comment} highlightText={highlightText} searchQuery={searchQuery} />
             <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="sm" onClick={() => likeComment(comment.id, postId)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleLikeComment(comment.id, comment.likes)}
+                disabled={likeCommentMutation.isPending}
+              >
                 <ThumbsUp className="w-3 h-3" />
                 <span className="ml-1 text-xs">{comment.likes}</span>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => openEditCommentDialog(comment)}>
+                <Edit2 className="w-3 h-3" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => {
-                  setSelectedComment(comment);
-                  setShowEditCommentDialog(true);
-                }}
+                onClick={() => handleDeleteComment(comment.id)}
+                disabled={deleteCommentMutation.isPending}
               >
-                <Edit2 className="w-3 h-3" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => deleteComment(comment.id, postId)}>
                 <Trash2 className="w-3 h-3" />
               </Button>
             </div>
           </div>
         ))}
       </div>
+
+      {/* 댓글 추가 */}
+      {showCommentAddDialog && (
+        <CommentAddDialog open={showCommentAddDialog} onClose={() => setShowCommentAddDialog(false)} postId={postId} />
+      )}
     </div>
   );
 };

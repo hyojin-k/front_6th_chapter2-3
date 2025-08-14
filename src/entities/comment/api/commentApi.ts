@@ -1,4 +1,5 @@
-import { GetCommentsResponseType } from "../model/types";
+import { GetCommentsResponseType, CommentType } from "../model/types";
+import { PostCommentRequestType, PostCommentResponseType, PutCommentRequestType } from "@/features/comment/model/types";
 
 const API_BASE_URL = "/api/comments";
 

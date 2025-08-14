@@ -1,8 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui";
 import { PostType } from "@/entities/post/model/types";
 import { Comments } from "@/features/comment/ui";
-import { CommentType } from "@/entities/comment/model/types";
-import { PostCommentRequestType } from "@/features/comment/model/types";
 import { highlightText } from "@/shared/lib";
 
 interface PostDetailDialogProps {
@@ -10,13 +8,6 @@ interface PostDetailDialogProps {
   setShowPostDetailDialog: (showPostDetailDialog: boolean) => void;
   selectedPost: Partial<PostType> | null;
   searchQuery: string;
-  comments: CommentType[];
-  setNewComment: (comment: Partial<PostCommentRequestType>) => void;
-  setShowAddCommentDialog: (show: boolean) => void;
-  likeComment: (id: number, postId: number) => void;
-  deleteComment: (id: number, postId: number) => void;
-  setSelectedComment: (comment: CommentType) => void;
-  setShowEditCommentDialog: (show: boolean) => void;
 }
 
 export const PostDetailDialog = ({
@@ -24,13 +15,6 @@ export const PostDetailDialog = ({
   setShowPostDetailDialog,
   selectedPost,
   searchQuery,
-  comments,
-  setNewComment,
-  setShowAddCommentDialog,
-  likeComment,
-  deleteComment,
-  setSelectedComment,
-  setShowEditCommentDialog,
 }: PostDetailDialogProps) => {
   return (
     <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
@@ -40,18 +24,7 @@ export const PostDetailDialog = ({
         </DialogHeader>
         <div className="space-y-4">
           <p>{highlightText(selectedPost?.body || "", searchQuery)}</p>
-          <Comments
-            comments={comments}
-            postId={selectedPost?.id || 0}
-            setNewComment={setNewComment}
-            setShowAddCommentDialog={setShowAddCommentDialog}
-            highlightText={highlightText}
-            searchQuery={searchQuery}
-            likeComment={likeComment}
-            deleteComment={deleteComment}
-            setSelectedComment={setSelectedComment}
-            setShowEditCommentDialog={setShowEditCommentDialog}
-          />
+          {selectedPost?.id && <Comments postId={selectedPost.id} searchQuery={searchQuery} />}
         </div>
       </DialogContent>
     </Dialog>

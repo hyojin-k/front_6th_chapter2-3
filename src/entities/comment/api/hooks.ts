@@ -7,5 +7,6 @@ export const useGetCommentsQuery = (postId: number) => {
   return useQuery({
     queryKey: commentQueryKeys.list(postId),
     queryFn: () => commentApi.getComments(postId),
+    enabled: !!postId,
   });
 };
