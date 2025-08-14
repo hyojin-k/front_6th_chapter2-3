@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { PostType } from "./types";
+import { UserType } from "@/entities/user/model/types";
 
 interface PostState {
   selectedPost: Partial<PostType> | null;
@@ -11,12 +12,8 @@ interface PostState {
     skip: number;
     limit: number;
   };
-  dialogs: {
-    showAddDialog: boolean;
-    showEditDialog: boolean;
-    showPostDetailDialog: boolean;
-  };
   newPost: Partial<PostType>;
+  selectedUser: UserType | null;
 }
 
 interface PostActions {
@@ -26,9 +23,9 @@ interface PostActions {
   setSortBy: (sortBy: string) => void;
   setSortOrder: (order: "asc" | "desc") => void;
   setPagination: (skip: number, limit: number) => void;
-  setDialog: (dialog: keyof PostState["dialogs"], show: boolean) => void;
   setNewPost: (post: Partial<PostType>) => void;
   resetNewPost: () => void;
+  setSelectedUser: (user: UserType | null) => void;
 }
 
 export const usePostStore = create<PostState & PostActions>((set) => ({
@@ -42,16 +39,12 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
     skip: 0,
     limit: 10,
   },
-  dialogs: {
-    showAddDialog: false,
-    showEditDialog: false,
-    showPostDetailDialog: false,
-  },
   newPost: {
     title: "",
     body: "",
     userId: 1,
   },
+  selectedUser: null,
 
   // 액션들
   setSelectedPost: (selectedPost) => set({ selectedPost }),
@@ -60,10 +53,7 @@ export const usePostStore = create<PostState & PostActions>((set) => ({
   setSortBy: (sortBy) => set({ sortBy }),
   setSortOrder: (sortOrder) => set({ sortOrder }),
   setPagination: (skip, limit) => set({ pagination: { skip, limit } }),
-  setDialog: (dialog, show) =>
-    set((state) => ({
-      dialogs: { ...state.dialogs, [dialog]: show },
-    })),
   setNewPost: (newPost) => set({ newPost }),
   resetNewPost: () => set({ newPost: { title: "", body: "", userId: 1 } }),
+  setSelectedUser: (selectedUser) => set({ selectedUser }),
 }));

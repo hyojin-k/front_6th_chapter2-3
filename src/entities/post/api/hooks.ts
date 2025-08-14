@@ -232,7 +232,7 @@ export const useCreatePostMutation = () => {
 
       return { previousData, optimisticId };
     },
-    onError: (err, newPost, context) => {
+    onError: (err, _newPost, context) => {
       if (context?.previousData) {
         context.previousData.forEach(([queryKey, data]) => {
           queryClient.setQueryData(queryKey, data);
@@ -240,7 +240,7 @@ export const useCreatePostMutation = () => {
       }
       console.error("게시물 추가 실패:", err);
     },
-    onSuccess: async (addedPost, variables, context) => {
+    onSuccess: async (addedPost, _variables, context) => {
       if (!context?.optimisticId) {
         queryClient.invalidateQueries({ queryKey: postQueryKeys.all });
         return;
@@ -372,7 +372,7 @@ export const useDeletePostMutation = () => {
 
       return { previousData, deletedId };
     },
-    onError: (err, deletedId, context) => {
+    onError: (err, _deletedId, context) => {
       if (context?.previousData) {
         context.previousData.forEach(([queryKey, data]) => {
           queryClient.setQueryData(queryKey, data);

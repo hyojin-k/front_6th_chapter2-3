@@ -2,20 +2,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui";
 import { PostType } from "@/entities/post/model/types";
 import { Comments } from "@/features/comment/ui";
 import { highlightText } from "@/shared/lib";
+import { usePostStore } from "@/entities/post/model/store";
 
 interface PostDetailDialogProps {
   open: boolean;
   onClose: () => void;
   selectedPost: Partial<PostType> | null;
-  searchQuery: string;
 }
 
 export const PostDetailDialog = ({
   open,
   onClose,
   selectedPost,
-  searchQuery,
 }: PostDetailDialogProps) => {
+  const { searchQuery } = usePostStore();
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl">

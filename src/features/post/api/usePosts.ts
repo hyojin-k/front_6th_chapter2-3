@@ -1,14 +1,9 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { usePostStore } from "@/entities/post/model/store";
-import { PostType } from "@/entities/post/model/types";
 import {
   useGetSearchPostsQuery,
   useGetPostsByTagQuery,
-  useGetTagsQuery,
-  useCreatePostMutation,
-  useUpdatePostMutation,
-  useDeletePostMutation,
 } from "@/entities/post/api/hooks";
 import { URLManager } from "@/shared/lib/urlManager";
 
@@ -16,23 +11,16 @@ export const usePosts = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const {
-    selectedPost,
     selectedTag,
     searchQuery,
     sortBy,
     sortOrder,
     pagination,
-    dialogs,
-    newPost,
-    setSelectedPost,
     setSelectedTag,
     setSearchQuery,
     setSortBy,
     setSortOrder,
     setPagination,
-    setDialog,
-    setNewPost,
-    resetNewPost,
   } = usePostStore();
 
   // URL 파라미터 동기화
@@ -104,7 +92,6 @@ export const usePosts = () => {
   }, [sortBy, sortOrder, setPagination, pagination.limit]);
 
   // TanStack Query 훅들
-  const { data: tagsData } = useGetTagsQuery();
   const { data: searchData, isLoading: searchLoading } = useGetSearchPostsQuery(
     searchQuery,
     sortBy,
@@ -121,106 +108,15 @@ export const usePosts = () => {
     { enabled: true },
   );
 
-  // Mutation 훅들
-  const createPostMutation = useCreatePostMutation();
-  const updatePostMutation = useUpdatePostMutation();
-  const deletePostMutation = useDeletePostMutation();
-
   // 현재 표시할 데이터 결정
   const currentData = searchQuery ? searchData : tagData;
-
   const currentLoading = searchQuery ? searchLoading : tagLoading;
-
-  // 게시물 검색
-  const handleSearch = () => {
-    // 검색 시 페이지네이션 리셋
-    setPagination(0, pagination.limit);
-  };
-
-  // 게시물 추가
-  const handleAddPost = async () => {
-    try {
-      const postData = {
-        title: newPost.title || "",
-        body: newPost.body || "",
-        userId: newPost.userId || 1,
-      };
-      await createPostMutation.mutateAsync(postData);
-      setDialog("showAddDialog", false);
-      resetNewPost();
-    } catch (error) {
-      console.error("게시물 추가 오류:", error);
-    }
-  };
-
-  // 게시물 수정
-  const handleUpdatePost = async () => {
-    if (!selectedPost?.id) return;
-
-    console.log("selectedPost", selectedPost);
-    try {
-      const postData = {
-        id: selectedPost.id,
-        title: selectedPost.title || "",
-        body: selectedPost.body || "",
-        userId: selectedPost.userId || 1,
-        views: selectedPost.views || 0,
-        reactions: selectedPost.reactions || { likes: 0, dislikes: 0 },
-        tags: selectedPost.tags || [],
-      };
-      await updatePostMutation.mutateAsync(postData);
-      setDialog("showEditDialog", false);
-    } catch (error) {
-      console.error("게시물 수정 오류:", error);
-    }
-  };
-
-  // 게시물 삭제
-  const handleDeletePost = async (id: number, onComplete?: () => void) => {
-    try {
-      await deletePostMutation.mutateAsync(id);
-      onComplete?.();
-    } catch (error) {
-      console.error("게시물 삭제 오류:", error);
-      onComplete?.();
-    }
-  };
-
-  // 게시물 상세 보기
-  const handleOpenPostDetail = (post: PostType) => {
-    setSelectedPost(post);
-    setDialog("showPostDetailDialog", true);
-  };
 
   return {
     // 상태
     posts: currentData?.posts || [],
     total: currentData?.total || 0,
     loading: currentLoading,
-    selectedPost,
-    tags: tagsData || [],
-    selectedTag,
-    searchQuery,
-    sortBy,
-    sortOrder,
     pagination,
-    dialogs,
-    newPost,
-
-    // 액션
-    setSelectedTag,
-    setSearchQuery,
-    setSortBy,
-    setSortOrder,
-    setPagination,
-    setDialog,
-    setNewPost,
-    setSelectedPost,
-    handleSearch,
-    handleAddPost,
-    handleUpdatePost,
-    handleDeletePost,
-    handleOpenPostDetail,
-    resetNewPost,
   };
 };

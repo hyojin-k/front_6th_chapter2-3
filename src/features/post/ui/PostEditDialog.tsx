@@ -3,35 +3,27 @@ import { Input } from "@/shared/ui";
 import { Textarea } from "@/shared/ui";
 import { Button } from "@/shared/ui";
 import { PostType } from "@/entities/post/model/types";
-import { useUpdatePostMutation } from "@/entities/post/api/hooks";
+import { usePostStore } from "@/entities/post/model/store";
+import { usePostDialogs } from "../api/usePostDialogs";
 
 interface PostEditDialogProps {
   open: boolean;
   onClose: () => void;
   selectedPost: Partial<PostType> | null;
-  setSelectedPost: (selectedPost: Partial<PostType> | null) => void;
 }
 
 export const PostEditDialog = ({
   open,
   onClose,
   selectedPost,
-  setSelectedPost,
 }: PostEditDialogProps) => {
-  const updatePostMutation = useUpdatePostMutation();
+  const { setSelectedPost } = usePostStore();
+  const { handleUpdatePost } = usePostDialogs();
 
-  const updatePost = () => {
+  const updatePost = async () => {
     if (!selectedPost?.id) return;
-
-    updatePostMutation.mutate(selectedPost as PostType, {
-      onSuccess: () => {
-        onClose();
-        setSelectedPost(null);
-      },
-      onError: (error) => {
-        console.error("게시물 수정 실패:", error);
-      },
-    });
+    await handleUpdatePost();
+    onClose();
   };
 
   return (

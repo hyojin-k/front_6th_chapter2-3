@@ -7,33 +7,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/ui";
-import { TagType } from "@/entities/post/model/types";
+import { useSearchBar } from "./hooks/useSearchBar";
 
-interface SearchBarProps {
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  searchPosts: () => void;
-  selectedTag: string;
-  setSelectedTag: (tag: string) => void;
-  tags: TagType[];
-  sortBy: string;
-  setSortBy: (sortBy: string) => void;
-  sortOrder: string;
-  setSortOrder: (sortOrder: "asc" | "desc") => void;
-}
+export const SearchBar = () => {
+  const {
+    searchQuery,
+    setSearchQuery,
+    selectedTag,
+    setSelectedTag,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+    tags,
+    handleSearch,
+  } = useSearchBar();
 
-export const SearchBar = ({
-  searchQuery,
-  setSearchQuery,
-  searchPosts,
-  selectedTag,
-  setSelectedTag,
-  tags,
-  sortBy,
-  setSortBy,
-  sortOrder,
-  setSortOrder,
-}: SearchBarProps) => {
   return (
     <div className="flex gap-4">
       <div className="flex-1">
@@ -44,7 +33,7 @@ export const SearchBar = ({
             className="pl-8"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && searchPosts()}
+            onKeyPress={(e) => e.key === "Enter" && handleSearch()}
           />
         </div>
       </div>

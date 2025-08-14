@@ -2,25 +2,23 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui";
 import { Input } from "@/shared/ui";
 import { Textarea } from "@/shared/ui";
 import { Button } from "@/shared/ui";
-import { PostType } from "@/entities/post/model/types";
+import { usePostDialogs } from "../api/usePostDialogs";
 
 interface PostAddDialogProps {
-  showAddDialog: boolean;
-  setShowAddDialog: (showAddDialog: boolean) => void;
-  newPost: Partial<PostType>;
-  setNewPost: (newPost: Partial<PostType>) => void;
-  addPost: () => void;
+  open: boolean;
+  onClose: () => void;
 }
 
-export const PostAddDialog = ({
-  showAddDialog,
-  setShowAddDialog,
-  newPost,
-  setNewPost,
-  addPost,
-}: PostAddDialogProps) => {
+export const PostAddDialog = ({ open, onClose }: PostAddDialogProps) => {
+  const { newPost, setNewPost, handleAddPost } = usePostDialogs();
+
+  const addPost = async () => {
+    await handleAddPost();
+    onClose();
+  };
+
   return (
-    <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>새 게시물 추가</DialogTitle>
