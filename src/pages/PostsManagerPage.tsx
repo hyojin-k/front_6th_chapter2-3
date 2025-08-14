@@ -12,7 +12,6 @@ const PostsManager = () => {
   const { posts, total, loading, pagination } = usePosts();
   const { setPagination } = usePostStore();
 
-  // 로컬 다이얼로그 상태
   const [showAddDialog, setShowAddDialog] = useState(false);
 
   return (
