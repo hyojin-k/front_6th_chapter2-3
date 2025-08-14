@@ -2,7 +2,10 @@ import { Button } from "@/shared/ui";
 import { CommentType } from "@/entities/comment/model/types";
 import { Plus, ThumbsUp, Trash2, Edit2 } from "lucide-react";
 import { Comment } from "@/entities/comment/ui";
-import { useDeleteCommentMutation, useLikeCommentMutation } from "@/features/comment/api/hooks";
+import {
+  useDeleteCommentMutation,
+  useLikeCommentMutation,
+} from "@/features/comment/api/hooks";
 import { useGetCommentsQuery } from "@/entities/comment/api/hooks";
 import { highlightText } from "@/shared/lib/highlightText";
 import { useState } from "react";
@@ -17,7 +20,9 @@ interface CommentsProps {
 export const Comments = ({ postId, searchQuery }: CommentsProps) => {
   const [showCommentAddDialog, setShowCommentAddDialog] = useState(false);
   const [showCommentEditDialog, setShowCommentEditDialog] = useState(false);
-  const [selectedComment, setSelectedComment] = useState<CommentType | null>(null);
+  const [selectedComment, setSelectedComment] = useState<CommentType | null>(
+    null,
+  );
 
   const { data: commentsData, isLoading, error } = useGetCommentsQuery(postId);
   const deleteCommentMutation = useDeleteCommentMutation();
@@ -58,7 +63,11 @@ export const Comments = ({ postId, searchQuery }: CommentsProps) => {
 
   if (error) {
     console.error("댓글 로딩 에러:", error);
-    return <div className="mt-2 text-sm text-red-500">댓글을 불러오는데 실패했습니다.</div>;
+    return (
+      <div className="mt-2 text-sm text-red-500">
+        댓글을 불러오는데 실패했습니다.
+      </div>
+    );
   }
 
   const comments = commentsData?.comments || [];
@@ -79,17 +88,36 @@ export const Comments = ({ postId, searchQuery }: CommentsProps) => {
       </div>
       <div className="space-y-1">
         {comments.map((comment: CommentType) => (
-          <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
-            <Comment comment={comment} highlightText={highlightText} searchQuery={searchQuery} />
+          <div
+            key={comment.id}
+            className="flex items-center justify-between text-sm border-b pb-1"
+          >
+            <Comment
+              comment={comment}
+              highlightText={highlightText}
+              searchQuery={searchQuery}
+            />
             <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="sm" onClick={() => handleLikeComment(comment.id, comment.likes)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleLikeComment(comment.id, comment.likes)}
+              >
                 <ThumbsUp className="w-3 h-3" />
                 <span className="ml-1 text-xs">{comment.likes}</span>
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => handleEditComment(comment)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleEditComment(comment)}
+              >
                 <Edit2 className="w-3 h-3" />
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => handleDeleteComment(comment.id)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleDeleteComment(comment.id)}
+              >
                 <Trash2 className="w-3 h-3" />
               </Button>
             </div>
@@ -99,7 +127,11 @@ export const Comments = ({ postId, searchQuery }: CommentsProps) => {
 
       {/* 댓글 추가 */}
       {showCommentAddDialog && (
-        <CommentAddDialog open={showCommentAddDialog} onClose={() => setShowCommentAddDialog(false)} postId={postId} />
+        <CommentAddDialog
+          open={showCommentAddDialog}
+          onClose={() => setShowCommentAddDialog(false)}
+          postId={postId}
+        />
       )}
 
       {/* 댓글 수정 */}

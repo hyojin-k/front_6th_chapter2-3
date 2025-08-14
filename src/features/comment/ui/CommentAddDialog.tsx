@@ -10,7 +10,11 @@ interface CommentAddDialogProps {
   postId: number;
 }
 
-export const CommentAddDialog = ({ open, onClose, postId }: CommentAddDialogProps) => {
+export const CommentAddDialog = ({
+  open,
+  onClose,
+  postId,
+}: CommentAddDialogProps) => {
   const { newComment, setNewComment } = useCommentStore();
 
   const createCommentMutation = useCreateCommentMutation();
@@ -48,7 +52,9 @@ export const CommentAddDialog = ({ open, onClose, postId }: CommentAddDialogProp
           <Textarea
             placeholder="댓글 내용"
             value={newComment.body || ""}
-            onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
+            onChange={(e) =>
+              setNewComment({ ...newComment, body: e.target.value })
+            }
           />
           <Button onClick={handleAddComment}>댓글 추가</Button>
         </div>

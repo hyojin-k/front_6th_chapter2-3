@@ -41,7 +41,9 @@ export const PostAddDialog = ({
             type="number"
             placeholder="사용자 ID"
             value={newPost.userId}
-            onChange={(e) => setNewPost({ ...newPost, userId: Number(e.target.value) })}
+            onChange={(e) =>
+              setNewPost({ ...newPost, userId: Number(e.target.value) })
+            }
           />
           <Button onClick={addPost}>게시물 추가</Button>
         </div>

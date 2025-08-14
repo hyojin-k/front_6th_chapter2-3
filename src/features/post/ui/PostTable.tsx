@@ -1,7 +1,21 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Button } from "@/shared/ui";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Button,
+} from "@/shared/ui";
 import { PostType } from "@/entities/post/model/types";
 import { UserType } from "@/entities/user/model/types";
-import { ThumbsUp, ThumbsDown, MessageSquare, Edit2, Trash2 } from "lucide-react";
+import {
+  ThumbsUp,
+  ThumbsDown,
+  MessageSquare,
+  Edit2,
+  Trash2,
+} from "lucide-react";
 import { highlightText } from "@/shared/lib";
 
 interface PostTableProps {
@@ -72,7 +86,11 @@ export const PostTable = ({
                 className="flex items-center space-x-2 cursor-pointer"
                 onClick={() => post.author && openUserModal(post.author)}
               >
-                <img src={post.author?.image} alt={post.author?.username} className="w-8 h-8 rounded-full" />
+                <img
+                  src={post.author?.image}
+                  alt={post.author?.username}
+                  className="w-8 h-8 rounded-full"
+                />
                 <span>{post.author?.username}</span>
               </div>
             </TableCell>
@@ -86,7 +104,11 @@ export const PostTable = ({
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => openPostDetail(post)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openPostDetail(post)}
+                >
                   <MessageSquare className="w-4 h-4" />
                 </Button>
                 <Button
@@ -99,7 +121,11 @@ export const PostTable = ({
                 >
                   <Edit2 className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => deletePost(post.id)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deletePost(post.id)}
+                >
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>

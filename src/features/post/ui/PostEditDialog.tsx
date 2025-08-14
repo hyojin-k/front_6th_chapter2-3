@@ -29,13 +29,23 @@ export const PostEditDialog = ({
           <Input
             placeholder="제목"
             value={selectedPost?.title || ""}
-            onChange={(e) => setSelectedPost(selectedPost ? { ...selectedPost, title: e.target.value } : null)}
+            onChange={(e) =>
+              setSelectedPost(
+                selectedPost
+                  ? { ...selectedPost, title: e.target.value }
+                  : null,
+              )
+            }
           />
           <Textarea
             rows={15}
             placeholder="내용"
             value={selectedPost?.body || ""}
-            onChange={(e) => setSelectedPost(selectedPost ? { ...selectedPost, body: e.target.value } : null)}
+            onChange={(e) =>
+              setSelectedPost(
+                selectedPost ? { ...selectedPost, body: e.target.value } : null,
+              )
+            }
           />
           <Button onClick={updatePost}>게시물 업데이트</Button>
         </div>

@@ -3,12 +3,24 @@ import { Plus } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Card, CardContent, CardHeader, CardTitle } from "../shared/ui";
 
-import { GetPostsResponseType, PostType, TagType } from "@/entities/post/model/types";
-import { GetUsersResponseType, UserDetailType, UserType } from "@/entities/user/model/types";
+import {
+  GetPostsResponseType,
+  PostType,
+  TagType,
+} from "@/entities/post/model/types";
+import {
+  GetUsersResponseType,
+  UserDetailType,
+  UserType,
+} from "@/entities/user/model/types";
 import { SearchBar } from "@/widgets/SearchBar";
 import { Pagination } from "@/shared/ui/Pagination";
-import { PostAddDialog, PostEditDialog, PostDetailDialog, PostTable } from "@/features/post/ui";
-import { CommentEditDialog } from "@/features/comment/ui";
+import {
+  PostAddDialog,
+  PostEditDialog,
+  PostDetailDialog,
+  PostTable,
+} from "@/features/post/ui";
 import { UserDetailDialog } from "@/entities/user/ui";
 
 const PostsManager = () => {
@@ -20,20 +32,33 @@ const PostsManager = () => {
   const [posts, setPosts] = useState<PostType[]>([]);
   const [total, setTotal] = useState(0);
   const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"));
-  const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"));
-  const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "");
-  const [selectedPost, setSelectedPost] = useState<Partial<PostType> | null>(null);
+  const [limit, setLimit] = useState(
+    parseInt(queryParams.get("limit") || "10"),
+  );
+  const [searchQuery, setSearchQuery] = useState(
+    queryParams.get("search") || "",
+  );
+  const [selectedPost, setSelectedPost] = useState<Partial<PostType> | null>(
+    null,
+  );
   const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "");
-  const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc");
+  const [sortOrder, setSortOrder] = useState(
+    queryParams.get("sortOrder") || "asc",
+  );
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [newPost, setNewPost] = useState<Partial<PostType>>({ title: "", body: "", userId: 1 });
+  const [newPost, setNewPost] = useState<Partial<PostType>>({
+    title: "",
+    body: "",
+    userId: 1,
+  });
   const [loading, setLoading] = useState(false);
   const [tags, setTags] = useState<TagType[]>([]);
   const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "");
   const [showPostDetailDialog, setShowPostDetailDialog] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<Partial<UserDetailType> | null>(null);
+  const [selectedUser, setSelectedUser] =
+    useState<Partial<UserDetailType> | null>(null);
 
   // URL 업데이트 함수
   const updateURL = () => {
@@ -124,7 +149,9 @@ const PostsManager = () => {
 
       const postsWithUsers = postsData.posts.map((post: PostType) => ({
         ...post,
-        author: usersData.users.find((user: UserType) => user.id === post.userId),
+        author: usersData.users.find(
+          (user: UserType) => user.id === post.userId,
+        ),
       }));
 
       setPosts(postsWithUsers);
@@ -269,7 +296,13 @@ const PostsManager = () => {
           )}
 
           {/* 페이지네이션 */}
-          <Pagination limit={limit} setLimit={setLimit} skip={skip} setSkip={setSkip} total={total} />
+          <Pagination
+            limit={limit}
+            setLimit={setLimit}
+            skip={skip}
+            setSkip={setSkip}
+            total={total}
+          />
         </div>
       </CardContent>
 
@@ -300,7 +333,11 @@ const PostsManager = () => {
       />
 
       {/* 사용자 모달 */}
-      <UserDetailDialog showUserModal={showUserModal} setShowUserModal={setShowUserModal} selectedUser={selectedUser} />
+      <UserDetailDialog
+        showUserModal={showUserModal}
+        setShowUserModal={setShowUserModal}
+        selectedUser={selectedUser}
+      />
     </Card>
   );
 };

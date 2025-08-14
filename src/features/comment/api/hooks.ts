@@ -2,7 +2,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { commentApi } from "./commentApi";
 import { commentQueryKeys } from "@/entities/comment/api/queryKeys";
 import { PostCommentRequestType } from "../model/types";
-import { CommentType, GetCommentsResponseType } from "@/entities/comment/model/types";
+import {
+  CommentType,
+  GetCommentsResponseType,
+} from "@/entities/comment/model/types";
 
 // 댓글 추가
 export const useCreateCommentMutation = () => {
@@ -13,21 +16,26 @@ export const useCreateCommentMutation = () => {
       return commentApi.createComment(req);
     },
     onSuccess: (res) => {
-      queryClient.setQueryData(commentQueryKeys.list(res.postId), (old: GetCommentsResponseType) => {
-        if (!old) return old;
+      queryClient.setQueryData(
+        commentQueryKeys.list(res.postId),
+        (old: GetCommentsResponseType) => {
+          if (!old) return old;
 
-        const newData = {
-          ...old,
-          comments: [res, ...old.comments],
-          total: old.total + 1,
-        };
-        return newData;
-      });
+          const newData = {
+            ...old,
+            comments: [res, ...old.comments],
+            total: old.total + 1,
+          };
+          return newData;
+        },
+      );
     },
     onError: (error, variables) => {
       console.error("댓글 추가 실패:", error);
       if (variables.postId) {
-        queryClient.invalidateQueries({ queryKey: commentQueryKeys.list(variables.postId) });
+        queryClient.invalidateQueries({
+          queryKey: commentQueryKeys.list(variables.postId),
+        });
       }
     },
   });
@@ -42,16 +50,19 @@ export const useUpdateCommentMutation = () => {
       return commentApi.updateComment(id, { body });
     },
     onSuccess: (updatedComment) => {
-      queryClient.setQueryData(commentQueryKeys.list(updatedComment.postId), (old: GetCommentsResponseType) => {
-        if (!old) return old;
-        const newData = {
-          ...old,
-          comments: old.comments.map((comment: CommentType) =>
-            comment.id === updatedComment.id ? updatedComment : comment,
-          ),
-        };
-        return newData;
-      });
+      queryClient.setQueryData(
+        commentQueryKeys.list(updatedComment.postId),
+        (old: GetCommentsResponseType) => {
+          if (!old) return old;
+          const newData = {
+            ...old,
+            comments: old.comments.map((comment: CommentType) =>
+              comment.id === updatedComment.id ? updatedComment : comment,
+            ),
+          };
+          return newData;
+        },
+      );
     },
     onError: (error) => {
       console.error("댓글 수정 실패:", error);
@@ -68,19 +79,26 @@ export const useDeleteCommentMutation = () => {
       return commentApi.deleteComment(id);
     },
     onSuccess: (_, variables) => {
-      queryClient.setQueryData(commentQueryKeys.list(variables.postId), (old: GetCommentsResponseType) => {
-        if (!old) return old;
-        const newData = {
-          ...old,
-          comments: old.comments.filter((comment: CommentType) => comment.id !== variables.id),
-          total: old.total - 1,
-        };
-        return newData;
-      });
+      queryClient.setQueryData(
+        commentQueryKeys.list(variables.postId),
+        (old: GetCommentsResponseType) => {
+          if (!old) return old;
+          const newData = {
+            ...old,
+            comments: old.comments.filter(
+              (comment: CommentType) => comment.id !== variables.id,
+            ),
+            total: old.total - 1,
+          };
+          return newData;
+        },
+      );
     },
     onError: (error, variables) => {
       console.error("댓글 삭제 실패:", error);
-      queryClient.invalidateQueries({ queryKey: commentQueryKeys.list(variables.postId) });
+      queryClient.invalidateQueries({
+        queryKey: commentQueryKeys.list(variables.postId),
+      });
     },
   });
 };
@@ -90,7 +108,15 @@ export const useLikeCommentMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, currentLikes, postId }: { id: number; currentLikes: number; postId: number }) => {
+    mutationFn: async ({
+      id,
+      currentLikes,
+      postId,
+    }: {
+      id: number;
+      currentLikes: number;
+      postId: number;
+    }) => {
       const newLikes = currentLikes + 1;
 
       try {
@@ -102,14 +128,19 @@ export const useLikeCommentMutation = () => {
       return { id, postId, likes: newLikes };
     },
     onSuccess: ({ id, postId, likes }) => {
-      queryClient.setQueryData(commentQueryKeys.list(postId), (old: GetCommentsResponseType) => {
-        if (!old) return old;
-        const newData = {
-          ...old,
-          comments: old.comments.map((comment: CommentType) => (comment.id === id ? { ...comment, likes } : comment)),
-        };
-        return newData;
-      });
+      queryClient.setQueryData(
+        commentQueryKeys.list(postId),
+        (old: GetCommentsResponseType) => {
+          if (!old) return old;
+          const newData = {
+            ...old,
+            comments: old.comments.map((comment: CommentType) =>
+              comment.id === id ? { ...comment, likes } : comment,
+            ),
+          };
+          return newData;
+        },
+      );
     },
   });
 };

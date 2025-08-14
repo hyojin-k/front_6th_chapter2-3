@@ -1,6 +1,12 @@
 import { Search } from "lucide-react";
 import { Input } from "@/shared/ui";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/ui";
 import { TagType } from "@/entities/post/model/types";
 
 interface SearchBarProps {

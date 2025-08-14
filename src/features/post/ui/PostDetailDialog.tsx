@@ -20,11 +20,15 @@ export const PostDetailDialog = ({
     <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>{highlightText(selectedPost?.title || "", searchQuery)}</DialogTitle>
+          <DialogTitle>
+            {highlightText(selectedPost?.title || "", searchQuery)}
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <p>{highlightText(selectedPost?.body || "", searchQuery)}</p>
-          {selectedPost?.id && <Comments postId={selectedPost.id} searchQuery={searchQuery} />}
+          {selectedPost?.id && (
+            <Comments postId={selectedPost.id} searchQuery={searchQuery} />
+          )}
         </div>
       </DialogContent>
     </Dialog>

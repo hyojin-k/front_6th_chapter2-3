@@ -11,7 +11,12 @@ interface CommentEditDialogProps {
   setSelectedComment: (comment: CommentType | null) => void;
 }
 
-export const CommentEditDialog = ({ open, onClose, selectedComment, setSelectedComment }: CommentEditDialogProps) => {
+export const CommentEditDialog = ({
+  open,
+  onClose,
+  selectedComment,
+  setSelectedComment,
+}: CommentEditDialogProps) => {
   const updateCommentMutation = useUpdateCommentMutation();
 
   const updateComment = () => {
@@ -40,7 +45,13 @@ export const CommentEditDialog = ({ open, onClose, selectedComment, setSelectedC
           <Textarea
             placeholder="댓글 내용"
             value={selectedComment?.body || ""}
-            onChange={(e) => setSelectedComment(selectedComment ? { ...selectedComment, body: e.target.value } : null)}
+            onChange={(e) =>
+              setSelectedComment(
+                selectedComment
+                  ? { ...selectedComment, body: e.target.value }
+                  : null,
+              )
+            }
           />
           <Button onClick={updateComment}>댓글 업데이트</Button>
         </div>

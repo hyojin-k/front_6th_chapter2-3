@@ -7,7 +7,13 @@ export const highlightText = (text: string, query: string) => {
   const parts = text.split(regex);
   return (
     <span>
-      {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
+      {parts.map((part, i) =>
+        regex.test(part) ? (
+          <mark key={i}>{part}</mark>
+        ) : (
+          <span key={i}>{part}</span>
+        ),
+      )}
     </span>
   );
 };
