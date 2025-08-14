@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui";
 import { PostType } from "@/entities/post/model/types";
-import { Comment } from "@/entities/comment/ui";
+import { Comments } from "@/features/comment/ui";
 import { CommentType } from "@/entities/comment/model/types";
 import { PostCommentRequestType } from "@/features/comment/model/types";
 import { highlightText } from "@/shared/lib";
@@ -40,7 +40,7 @@ export const PostDetailDialog = ({
         </DialogHeader>
         <div className="space-y-4">
           <p>{highlightText(selectedPost?.body || "", searchQuery)}</p>
-          <Comment
+          <Comments
             comments={comments}
             postId={selectedPost?.id || 0}
             setNewComment={setNewComment}
